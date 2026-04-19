@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="navbar-complete.js"></script>
+  <script src="navbar-script.js"></script>
   <style>
     :root {
       --bg: #ffffff;
@@ -42,6 +43,7 @@
       min-height: 100vh;
     }
 
+    /* Desktop styles */
     .site-nav {
       position: relative;
       top: 18px;
@@ -59,6 +61,15 @@
       position: sticky;
     }
 
+    @media (min-width: 769px) {
+      #mobile-menu-btn {
+        display: none;
+      }
+      .nav-links {
+        translate: none !important;
+      }
+    }
+
     #indicator {
       position: absolute;
       top: 5px;
@@ -69,12 +80,6 @@
       z-index: 1;
       transition: all 0.3s cubic-bezier(0.25,1,0.5,1);
       width: 0;
-    }
-
-    .nav-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
 
     .nav-links {
@@ -91,9 +96,9 @@
       min-height: 48px;
       padding: 0 18px;
       border-radius: 999px;
-      transition: transform var(--ease), border-color var(--ease), background var(--ease), box-shadow var(--ease);
+      transition: transform var(--ease), border-color var(--ease), background var(--ease), box-shadow var(--ease), color var(--ease);
       border: 1px solid transparent;
-      color: var(--muted-strong);
+      color: #000000;
       text-decoration: none;
     }
 
@@ -109,32 +114,134 @@
       background: rgba(255, 255, 255, 0.06);
       box-shadow: 0 18px 38px rgba(5, 15, 25, 0.45);
     }
+
+    /* Mobile styles */
+    @media (max-width: 768px) {
+      .site-nav {
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 12px;
+        width: auto;
+        max-width: calc(100vw - 32px);
+        margin: 12px auto 0;
+        top: 12px;
+      }
+
+      #mobile-menu-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 4px;
+        background: none;
+        border: none;
+        padding: 8px;
+        cursor: pointer;
+        z-index: 40;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        transition: all var(--ease);
+      }
+
+      #mobile-menu-btn span {
+        width: 24px;
+        height: 2px;
+        background: var(--muted-strong);
+        transition: all var(--ease);
+        transform-origin: center;
+      }
+
+      body.mobile-nav-open #mobile-menu-btn span:nth-child(1) {
+        transform: rotate(45deg) translate(6px, 6px);
+      }
+
+      body.mobile-nav-open #mobile-menu-btn span:nth-child(2) {
+        opacity: 0;
+      }
+
+      body.mobile-nav-open #mobile-menu-btn span:nth-child(3) {
+        transform: rotate(-45deg) translate(6px, -6px);
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(25px);
+        flex-direction: column;
+        padding: 80px 20px 20px;
+        gap: 0;
+        translate: -100% 0;
+        transition: translate var(--ease);
+        z-index: 35;
+        box-shadow: var(--shadow);
+      }
+
+      body.mobile-nav-open .nav-links {
+        translate: 0 0;
+      }
+
+      .nav-link {
+        justify-content: flex-start;
+        padding: 16px 20px;
+        margin-bottom: 8px;
+        min-height: 56px;
+        font-size: 16px;
+        border-radius: 16px;
+        width: 100%;
+      }
+
+      #indicator {
+        position: absolute !important;
+        border-radius: 16px;
+      }
+
+      #nav-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.5);
+        z-index: 32;
+        opacity: 0;
+        visibility: hidden;
+        transition: all var(--ease);
+      }
+
+      body.mobile-nav-open #nav-overlay {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      body.mobile-nav-open {
+        overflow: hidden;
+      }
+    }
   </style>
 </head>
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const links = document.querySelectorAll(".nav-link");
-    const currentPage = window.location.pathname.split("/").pop() || "index.html";
 
-    links.forEach(link => {
-      link.classList.remove("active");
-      const linkPage = link.getAttribute("href");
-      if (linkPage !== "#" && linkPage === currentPage) {
-        link.classList.add("active");
-      }
-    });
-  });
-</script>
 <body>
-  <nav class="site-nav glass">
+  <nav class="site-nav">
+
+    <button id="mobile-menu-btn" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
     <div class="nav-links">
-      <a class="nav-link" href="index.html"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png" alt="Home" style="width:20px;height:20px;margin-right:4px;">Home</a>
-      <a class="nav-link" href="products.html"><img src="https://cdn-icons-png.flaticon.com/512/4804/4804045.png" alt="Products" style="width:20px;height:20px;margin-right:4px;">Products</a>
-      <a class="nav-link" href="cart.html"><img src="https://static.vecteezy.com/system/resources/previews/019/787/018/non_2x/shopping-cart-icon-shopping-basket-on-transparent-background-free-png.png" alt="Cart" style="width:20px;height:20px;margin-right:4px;">Cart</a>
-      <a class="nav-link active" href="login.html"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkbpugr3eQwxV_gINbKOZE_RKL3_pbvoTiuQ&s" alt="Login" style="width:20px;height:20px;margin-right:4px;">SignUp/Login</a>
+      <a class="nav-link" href="index.html"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
+      <a class="nav-link" href="products.html"><img src="https://cdn-icons-png.flaticon.com/512/4804/4804045.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
+      <a class="nav-link" href="cart.html"><img src="https://static.vecteezy.com/system/resources/previews/019/787/018/non_2x/shopping-cart-icon-shopping-basket-on-transparent-background-free-png.png" alt="Cart" style="width:28px;height:20px;margin-right:8px;">Cart</a>
+      <a class="nav-link active" href="login.html"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkbpugr3eQwxV_gINbKOZE_RKL3_pbvoTiuQ&s" alt="Login" style="width:20px;height:20px;margin-right:8px;">SignUp/Login</a>
     </div>
   </nav>
+
+  <div id="nav-overlay"></div>
 
   <div id="mainContent">
     <h1>Login / Sign Up</h1>
