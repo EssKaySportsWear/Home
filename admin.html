@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - EssKay Sportswear</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F3E3D0;
+      --accent: #72a5b8;
+      --text: #1f150f;
+    }
+    body {
+      margin: 0;
+      font-family: "Sora", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      letter-spacing: 2px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+    .table-container {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th, td {
+      padding: 16px;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    th {
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0.6;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    td {
+      font-size: 14px;
+    }
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .status-active { background: #e6f4ea; color: #1e7e34; }
+    .status-disabled { background: #fdf2f2; color: #c81e1e; }
+
+    .action-btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+      margin-right: 4px;
+    }
+    .btn-edit { background: #f0f4f8; color: #72a5b8; }
+    .btn-disable { background: #fff1f1; color: #ff4d4d; }
+    .btn-enable { background: #f0fff4; color: #28a745; }
+    .btn-reset { background: #f0f4f8; color: #555; }
+    .btn-delete { background: #333; color: white; }
+
+    .action-btn:hover { transform: translateY(-2px); opacity: 0.8; }
+
+    #loading { text-align: center; font-weight: 600; opacity: 0.5; padding: 40px; }
+
+    .search-box {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.1);
+      background: rgba(255,255,255,0.6);
+      margin-bottom: 20px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .back-home {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <a href="index.html" class="back-home">← Back to Website</a>
+    <h1>Admin Control Panel</h1>
+
+    <div class="glass-card">
+      <input type="text" id="userSearch" class="search-box" placeholder="Search by name or email...">
+      
+      <div class="table-container">
+        <div id="loading">Loading user database...</div>
+        <table id="userTable" style="display: none;">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="userList"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, rtdb } from './firebase.js';
+    import { onAuthStateChanged, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { ref, get, update, remove } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+    import { showToast, showConfirm, showPrompt } from './toast-system.js';
+
+    const ADMIN_EMAIL = 'business.esskaysportswear@gmail.com';
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user || user.email !== ADMIN_EMAIL) {
+        showToast('Access Denied.', 'error');
+        setTimeout(() => window.location.href = 'index.html', 1500);
+        return;
+      }
+      loadUsers();
+    });
+
+    async function loadUsers() {
+      const usersRef = ref(rtdb, 'users');
+      try {
+        const snapshot = await get(usersRef);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('userTable').style.display = 'table';
+        
+        if (snapshot.exists()) {
+          renderUsers(snapshot.val());
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Error loading users.', 'error');
+      }
+    }
+
+    function renderUsers(usersData) {
+      const list = document.getElementById('userList');
+      list.innerHTML = '';
+      
+      Object.keys(usersData).forEach(uid => {
+        const user = usersData[uid];
+        const tr = document.createElement('tr');
+        const joinedDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A';
+        const isDisabled = user.disabled === true;
+        const isSelf = user.email === ADMIN_EMAIL;
+
+        tr.innerHTML = `
+          <td><strong>${user.name || 'N/A'}</strong> ${isSelf ? '<span style="opacity:0.5; font-size:10px;">(YOU)</span>' : ''}</td>
+          <td>${user.email}</td>
+          <td><span class="status-badge ${isDisabled ? 'status-disabled' : 'status-active'}">${isDisabled ? 'Disabled' : 'Active'}</span></td>
+          <td>${joinedDate}</td>
+          <td>
+            ${isSelf ? '<span style="font-size:11px; opacity:0.6;">System Admin</span>' : `
+            <button class="action-btn btn-edit" data-uid="${uid}" data-name="${user.name}">Edit Name</button>
+            <button class="action-btn ${isDisabled ? 'btn-enable' : 'btn-disable'}" data-uid="${uid}" data-action="${isDisabled ? 'enable' : 'disable'}">${isDisabled ? 'Enable' : 'Disable'}</button>
+            <button class="action-btn btn-reset" data-uid="${uid}" data-email="${user.email}">Reset Pwd</button>
+            <button class="action-btn btn-delete" data-uid="${uid}">Delete</button>
+            `}
+          </td>
+        `;
+        list.appendChild(tr);
+      });
+
+      // Re-attach listeners because of innerHTML
+      attachActionListeners();
+    }
+
+    function attachActionListeners() {
+      document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const { uid, name, email, action } = e.target.dataset;
+          if (e.target.classList.contains('btn-edit')) adminAction('edit', uid, name);
+          else if (e.target.classList.contains('btn-disable') || e.target.classList.contains('btn-enable')) adminAction(action, uid);
+          else if (e.target.classList.contains('btn-reset')) adminAction('reset', uid, email);
+          else if (e.target.classList.contains('btn-delete')) adminAction('delete', uid);
+        });
+      });
+    }
+
+    async function adminAction(action, uid, extra) {
+      const userRef = ref(rtdb, 'users/' + uid);
+
+      if (action === 'edit') {
+        const newName = await showPrompt('Enter new name for user:', extra, 'Edit Profile');
+        if (newName && newName !== extra) {
+          showToast('Updating name...', 'loading');
+          await update(userRef, { name: newName });
+          showToast('Name updated.', 'success');
+          setTimeout(() => location.reload(), 1000);
+        }
+      } else if (action === 'disable') {
+        if (await showConfirm('Disable this user? They will be logged out immediately.', 'Disable User')) {
+          showToast('Disabling user...', 'loading');
+          await update(userRef, { disabled: true });
+          showToast('User disabled.', 'success');
+          setTimeout(() => location.reload(), 1000);
+        }
+      } else if (action === 'enable') {
+        showToast('Enabling user...', 'loading');
+        await update(userRef, { disabled: false });
+        showToast('User enabled.', 'success');
+        setTimeout(() => location.reload(), 1000);
+      } else if (action === 'reset') {
+        if (await showConfirm('Send password reset link to ' + extra + '?', 'Password Reset')) {
+          try {
+            showToast('Sending reset link...', 'loading');
+            await sendPasswordResetEmail(auth, extra);
+            showToast('Reset link sent!', 'success');
+          } catch(e) { showToast(e.message, 'error'); }
+        }
+      } else if (action === 'delete') {
+        if (await showConfirm('DELETE USER PERMANENTLY? This cannot be undone.', 'Danger Zone')) {
+          showToast('Deleting user...', 'loading');
+          await remove(userRef);
+          showToast('User removed from DB.', 'success');
+          setTimeout(() => location.reload(), 1000);
+        }
+      }
+    }
+
+    // Simple Search Logic
+    document.getElementById('userSearch').addEventListener('input', (e) => {
+      const val = e.target.value.toLowerCase();
+      const rows = document.querySelectorAll('#userList tr');
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(val) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

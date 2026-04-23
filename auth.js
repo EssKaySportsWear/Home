@@ -23,10 +23,30 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential
 } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { ref, set, get, child, query, orderByChild, equalTo, remove } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { ref, set, get, child, query, orderByChild, equalTo, remove, update } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
+// --- Import Toast System ---
+import { showToast, showConfirm, showPrompt, updateToast } from './toast-system.js';
+
+const ADMIN_EMAIL = 'business.esskaysportswear@gmail.com';
+
+// --- Error Handling Helper ---
+function getFriendlyError(error) {
+  const code = error.code || '';
+  if (code === 'auth/user-not-found') return "User not found";
+  if (code === 'auth/wrong-password') return "Incorrect password";
+  if (code === 'auth/invalid-email') return "Invalid email address";
+  if (code === 'auth/email-already-in-use') return "Email already in use";
+  if (code === 'auth/weak-password') return "Password is too weak";
+  if (code === 'auth/requires-recent-login') return "Security: Please log in again to continue";
+  if (code === 'auth/popup-closed-by-user') return "Login cancelled";
+  
+  // Strip "Firebase: " prefix if present for other errors
+  return error.message.replace('Firebase: ', '').replace(/\(auth\/.*\).*/, '').trim();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('🔐 Auth system initialized. If changes do not appear, please Hard Refresh (Ctrl + F5).');
+  console.log('🔐 Auth system initialized.');
 
   // --- UI Elements ---
   const elements = {
@@ -43,8 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
       forgotBack: document.getElementById('forgotBackToLogin'),
       loginGoogle: document.getElementById('loginGoogleBtn'),
       signupGoogle: document.getElementById('signupGoogleBtn'),
-      logout: document.getElementById('nav-logout-btn'),
       userBtn: document.getElementById('nav-user-btn'),
+      adminLink: document.getElementById('nav-admin-link'),
       changeEmail: document.getElementById('changeEmailBtn'),
       verifyBack: document.getElementById('verifyBackToLogin'),
       loginBtn: document.getElementById('loginBtn'),
@@ -96,23 +116,21 @@ document.addEventListener('DOMContentLoaded', () => {
           <input type="text" id="acc-email" disabled style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.05);">
         </div>
 
-        <div id="acc-pwd-section" style="margin-bottom: 20px; display: none;">
-          <label style="font-size: 13px; font-weight: 600; opacity: 0.7; display: block; margin-bottom: 8px;">New Password</label>
-          <div style="display: flex; gap: 10px;">
-            <input type="password" id="acc-new-pwd" style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: white;">
-            <button id="btn-update-pwd" style="padding: 10px 15px; background: #72a5b8; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 13px;">Change</button>
-          </div>
+        <div id="acc-security-section" style="margin-bottom: 20px;">
+          <label style="font-size: 13px; font-weight: 600; opacity: 0.7; display: block; margin-bottom: 8px;">Security</label>
+          <button id="btn-reset-pwd-email" style="width: 100%; padding: 12px; background: #f0f4f8; border: 1px solid #72a5b8; color: #72a5b8; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; display: none;">Send Password Reset Link</button>
         </div>
 
-        <div id="acc-switch-section" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
+        <div id="acc-switch-section" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.05);">
           <button id="btn-switch-account" style="width: 100%; padding: 14px; background: white; border: 1px solid #72a5b8; color: #72a5b8; border-radius: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s;">
             Switch to Custom Email
           </button>
           <p id="acc-switch-info" style="font-size: 12px; opacity: 0.6; text-align: center; margin-top: 8px;">Security: Google Authenticated</p>
         </div>
 
-        <div style="margin-top: 20px;">
-          <button id="btn-delete-account" style="width: 100%; padding: 14px; background: #fff1f1; border: 1px solid #ff4d4d; color: #ff4d4d; border-radius: 12px; cursor: pointer; font-weight: 600;">Delete Account</button>
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+          <button id="btn-logout-panel" style="flex: 1; padding: 14px; background: #1f150f; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600;">Log Out</button>
+          <button id="btn-delete-account" style="padding: 14px; background: #fff1f1; border: 1px solid #ff4d4d; color: #ff4d4d; border-radius: 12px; cursor: pointer; font-weight: 600;">Delete</button>
         </div>
       </div>
     </div>
@@ -124,110 +142,101 @@ document.addEventListener('DOMContentLoaded', () => {
     close: document.getElementById('close-account-panel'),
     name: document.getElementById('acc-name'),
     email: document.getElementById('acc-email'),
-    pwdInput: document.getElementById('acc-new-pwd'),
-    pwdSection: document.getElementById('acc-pwd-section'),
     btnUpdateName: document.getElementById('btn-update-name'),
-    btnUpdatePwd: document.getElementById('btn-update-pwd'),
+    btnResetEmail: document.getElementById('btn-reset-pwd-email'),
     btnSwitch: document.getElementById('btn-switch-account'),
     btnDelete: document.getElementById('btn-delete-account'),
+    btnLogout: document.getElementById('btn-logout-panel'),
     switchInfo: document.getElementById('acc-switch-info')
   };
 
-  function openAccountPanel() {
+  async function openAccountPanel() {
     const user = auth.currentUser;
     if (!user) return;
-
     panel.name.value = user.displayName || '';
     panel.email.value = user.email || '';
-    
     const isGoogle = user.providerData.some(p => p.providerId === 'google.com');
-    
     if (isGoogle) {
-      panel.pwdSection.style.display = 'none';
+      panel.btnResetEmail.style.display = 'none';
       panel.btnSwitch.textContent = 'Switch to Custom Email';
       panel.switchInfo.textContent = 'Security: Google Authenticated';
     } else {
-      panel.pwdSection.style.display = 'block';
+      panel.btnResetEmail.style.display = 'block';
       panel.btnSwitch.textContent = 'Link Google Account';
       panel.switchInfo.textContent = 'Security: Email & Password';
     }
-
     panel.overlay.style.display = 'flex';
   }
 
   panel.close?.addEventListener('click', () => panel.overlay.style.display = 'none');
   elements.buttons.userBtn?.addEventListener('click', openAccountPanel);
 
-  // --- Account Actions ---
-
   panel.btnUpdateName?.addEventListener('click', async () => {
     const newName = panel.name.value.trim();
     if (!newName) return;
+    const toast = showToast('Updating name...', 'loading');
     try {
       await updateProfile(auth.currentUser, { displayName: newName });
-      await set(ref(rtdb, 'users/' + auth.currentUser.uid + '/name'), newName);
+      await update(ref(rtdb, 'users/' + auth.currentUser.uid), { name: newName });
       if (elements.usernameSpan) elements.usernameSpan.textContent = newName;
-      alert('Name updated successfully!');
-    } catch (e) { alert('Update failed: ' + e.message); }
+      updateToast(toast, 'Name updated successfully!', 'success');
+    } catch (e) { updateToast(toast, getFriendlyError(e), 'error'); }
   });
 
-  panel.btnUpdatePwd?.addEventListener('click', async () => {
-    const newPwd = panel.pwdInput.value;
-    if (newPwd.length < 6) { alert('Password must be at least 6 characters.'); return; }
+  panel.btnResetEmail?.addEventListener('click', async () => {
+    const toast = showToast('Sending reset link...', 'loading');
     try {
-      await updatePassword(auth.currentUser, newPwd);
-      alert('Password updated successfully!');
-      panel.pwdInput.value = '';
-    } catch (e) { 
-      if (e.code === 'auth/requires-recent-login') alert('Please log out and log in again to change password.');
-      else alert('Error: ' + e.message);
-    }
+      await sendPasswordResetEmail(auth, auth.currentUser.email);
+      updateToast(toast, 'Reset link sent to your inbox!', 'success');
+    } catch (e) { updateToast(toast, getFriendlyError(e), 'error'); }
   });
 
   panel.btnDelete?.addEventListener('click', async () => {
-    if (!confirm('Are you absolutely sure? This will delete your entire account and data forever.')) return;
+    if (!await showConfirm('Are you absolutely sure? This will delete your entire account and data forever.', 'Delete Account')) return;
+    const toast = showToast('Deleting account...', 'loading');
     try {
       const uid = auth.currentUser.uid;
       await remove(ref(rtdb, 'users/' + uid));
       await deleteUser(auth.currentUser);
-      alert('Account deleted.');
-      window.location.href = 'index.html';
-    } catch (e) { alert('Error: ' + e.message); }
+      updateToast(toast, 'Account deleted.', 'success');
+      setTimeout(() => window.location.href = 'index.html', 1500);
+    } catch (e) { updateToast(toast, getFriendlyError(e), 'error'); }
+  });
+
+  panel.btnLogout?.addEventListener('click', async () => {
+    await signOut(auth);
+    showToast('Logged out successfully', 'success');
+    setTimeout(() => window.location.href = 'index.html', 1000);
   });
 
   panel.btnSwitch?.addEventListener('click', async () => {
     const user = auth.currentUser;
     const isGoogle = user.providerData.some(p => p.providerId === 'google.com');
-
     if (isGoogle) {
-      // Google to Email
-      if (!confirm('Are you sure you want to switch to Email login? This will remove Google access.')) return;
-      const pwd = prompt('Create a new password for your email login:');
-      if (!pwd || pwd.length < 6) { alert('Password required (min 6 chars)'); return; }
-
+      if (!await showConfirm('Are you sure you want to switch to Email login? This will remove Google access.', 'Switch Method')) return;
+      const pwd = await showPrompt('Create a new password for your email login:');
+      if (!pwd || pwd.length < 6) { showToast('Password too short', 'error'); return; }
+      const toast = showToast('Switching account type...', 'loading');
       try {
         const credential = EmailAuthProvider.credential(user.email, pwd);
         await linkWithCredential(user, credential);
         await unlink(user, 'google.com');
-        alert('Switched to Email! Please log in again.');
+        updateToast(toast, 'Switched to Email! Please log in again.', 'success');
         await signOut(auth);
-        window.location.href = 'login.html';
-      } catch (e) { alert('Switch failed: ' + e.message); }
+        setTimeout(() => window.location.href = 'login.html', 2000);
+      } catch (e) { updateToast(toast, getFriendlyError(e), 'error'); }
     } else {
-      // Email to Google
-      if (!confirm('Link your Google account and remove your password?')) return;
+      if (!await showConfirm('Link your Google account and remove your password?', 'Link Google')) return;
+      const toast = showToast('Linking Google...', 'loading');
       try {
         await linkWithPopup(user, googleProvider);
-        alert('Google account linked! Logging you in via Google from now on.');
-        panel.pwdSection.style.display = 'none';
-        panel.btnSwitch.textContent = 'Switch to Custom Email';
-        panel.switchInfo.textContent = 'Security: Google Authenticated';
-      } catch (e) { alert('Link failed: ' + e.message); }
+        updateToast(toast, 'Google account linked!', 'success');
+        location.reload();
+      } catch (e) { updateToast(toast, getFriendlyError(e), 'error'); }
     }
   });
 
   // --- Auth & Core Logic ---
-
   function showSection(sectionName) {
     stopVerificationCheck();
     Object.values(elements.sections).forEach(s => s?.classList.remove('active'));
@@ -240,7 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elements.containers.loginPasswordGroup) elements.containers.loginPasswordGroup.style.display = 'block';
     if (elements.buttons.loginBtn) elements.buttons.loginBtn.style.display = 'block';
     if (elements.messages.googleDetectLogin) elements.messages.googleDetectLogin.style.display = 'none';
-
     if (elements.containers.signupPasswordWrapper) elements.containers.signupPasswordWrapper.style.display = 'block';
     if (elements.buttons.signupBtn) elements.buttons.signupBtn.style.display = 'block';
     if (elements.messages.googleDetectSignup) elements.messages.googleDetectSignup.style.display = 'none';
@@ -298,11 +306,22 @@ document.addEventListener('DOMContentLoaded', () => {
     hideAllErrors();
     const email = elements.inputs.loginEmail.value.trim();
     const password = document.getElementById('loginPassword').value;
+    const toast = showToast('Logging in...', 'loading');
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      if (!userCredential.user.emailVerified) { showError('loginError', 'Please verify your email.'); await signOut(auth); return; }
-      window.location.href = 'index.html';
-    } catch (error) { showError('loginError', "Error: " + error.message); }
+      if (!userCredential.user.emailVerified) { 
+        updateToast(toast, 'Please verify your email.', 'error');
+        showError('loginError', 'Verification required.'); 
+        await signOut(auth); 
+        return; 
+      }
+      updateToast(toast, 'Login successful', 'success');
+      setTimeout(() => window.location.href = 'index.html', 1000);
+    } catch (error) { 
+      const friendly = getFriendlyError(error);
+      updateToast(toast, friendly, 'error'); 
+      showError('loginError', friendly); 
+    }
   });
 
   elements.forms.signup?.addEventListener('submit', async (e) => {
@@ -311,7 +330,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const name = elements.inputs.signupName.value.trim();
     const email = elements.inputs.signupEmail.value.trim();
     const password = document.getElementById('signupPassword').value;
-    if (password.length < 6) { showError('signupError', 'Min 6 characters'); return; }
+    if (password.length < 6) { showToast('Password too short', 'error'); showError('signupError', 'Min 6 characters'); return; }
+    const toast = showToast('Creating account...', 'loading');
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -319,16 +339,18 @@ document.addEventListener('DOMContentLoaded', () => {
       await set(ref(rtdb, 'users/' + user.uid), { name, email, createdAt: new Date().toISOString() });
       await signOut(auth);
       if (elements.displayVerifyEmail) elements.displayVerifyEmail.textContent = email;
+      updateToast(toast, 'Verification email sent!', 'success');
       showSection('verify');
       verificationCheckInterval = setInterval(async () => {
-        try { await user.reload(); if (user.emailVerified) { stopVerificationCheck(); alert('Verified!'); window.location.href = 'index.html'; } }
+        try { await user.reload(); if (user.emailVerified) { stopVerificationCheck(); showToast('Email verified!', 'success'); setTimeout(() => window.location.href = 'index.html', 1500); } }
         catch (err) { console.error(err); }
       }, 3000);
-    } catch (error) { showError('signupError', error.message); }
+    } catch (error) { updateToast(toast, getFriendlyError(error), 'error'); showError('signupError', getFriendlyError(error)); }
   });
 
   async function handleGoogleSignIn() {
     isProcessingGoogle = true;
+    const toast = showToast('Signing in with Google...', 'loading');
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
@@ -337,27 +359,32 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!snapshot.exists()) {
         await set(userRef, { name: user.displayName || 'Google User', email: user.email, createdAt: new Date().toISOString() });
       }
-      window.location.href = 'index.html';
-    } catch (error) { console.error(error); alert('Failed'); isProcessingGoogle = false; }
+      updateToast(toast, 'Login successful', 'success');
+      setTimeout(() => window.location.href = 'index.html', 1000);
+    } catch (error) { updateToast(toast, getFriendlyError(error), 'error'); isProcessingGoogle = false; }
   }
 
   elements.buttons.loginGoogle?.addEventListener('click', (e) => { e.preventDefault(); handleGoogleSignIn(); });
   elements.buttons.signupGoogle?.addEventListener('click', (e) => { e.preventDefault(); handleGoogleSignIn(); });
 
-  elements.buttons.logout?.addEventListener('click', (e) => {
-    e.preventDefault();
-    signOut(auth).then(() => { window.location.href = 'index.html'; });
-  });
-
   onAuthStateChanged(auth, async (user) => {
     const authNavBtns = document.querySelectorAll('.auth-nav-btn');
     const userNavBtns = document.querySelectorAll('.user-nav-btn');
+    const adminLink = elements.buttons.adminLink;
     if (user && user.emailVerified) {
+      if (user.email === ADMIN_EMAIL) { if (adminLink) adminLink.style.display = 'inline-flex'; } 
+      else { if (adminLink) adminLink.style.display = 'none'; }
+      const snapshot = await get(ref(rtdb, 'users/' + user.uid));
+      if (snapshot.exists() && snapshot.val().disabled === true) {
+        showToast('Your account has been disabled.', 'error');
+        await signOut(auth);
+        window.location.href = 'login.html';
+        return;
+      }
       authNavBtns.forEach(btn => btn.style.display = 'none');
       userNavBtns.forEach(btn => btn.style.display = 'inline-flex');
       if (elements.usernameSpan) {
         elements.usernameSpan.textContent = user.displayName || 'User';
-        const snapshot = await get(ref(rtdb, 'users/' + user.uid));
         if (snapshot.exists() && snapshot.val().name) elements.usernameSpan.textContent = snapshot.val().name;
       }
       if (!isProcessingGoogle && window.location.pathname.includes('login.html') && !elements.sections.verify?.classList.contains('active')) {
@@ -366,6 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       authNavBtns.forEach(btn => btn.style.display = 'inline-flex');
       userNavBtns.forEach(btn => btn.style.display = 'none');
+      if (adminLink) adminLink.style.display = 'none';
     }
   });
 });
