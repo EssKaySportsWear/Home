@@ -1,0 +1,37 @@
+# FIREBASE SETUP GUIDE
+
+Please complete these steps in your Firebase Console to make the authentication work correctly:
+
+### 1. Enable Authentication Providers
+- Go to **Authentication** > **Sign-in method**.
+- Enable **Email/Password**.
+- Enable **Google** (if you want Google login).
+
+### 2. Configure Realtime Database Rules (CRITICAL)
+- Go to **Realtime Database** > **Rules**.
+- Paste these rules to allow email checking and protect user data:
+```json
+{
+  "rules": {
+    "users": {
+      ".indexOn": ["email"],
+      ".read": "auth != null",
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    }
+  }
+}
+```
+
+### 3. Check Email Templates
+- Go to **Authentication** > **Templates**.
+- Ensure **Email verification** and **Password reset** are enabled and the "From" name/email are correct.
+
+### 4. Enable Local Testing
+- Go to **Authentication** > **Settings** > **Authorized domains**.
+- Ensure `localhost` is added.
+
+### 5. Deployment Note
+- Always run your project using a local server (like Live Server) or the auth features will be blocked by the browser.

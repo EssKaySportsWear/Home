@@ -5,6 +5,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('nav-overlay');
   const body = document.body;
 
+  // ── Icon helpers ──────────────────────────────────────────────
+  // Swap a nav-link's icon based on its current state.
+  // State priority: active > normal (hovered uses normal icon)
+  function setIcon(link, state /* 'active' | 'normal' */) {
+    const img = link.querySelector('.nav-icon');
+    if (!img) return;
+    img.src = state === 'active' ? img.dataset.active : img.dataset.normal;
+  }
+
+  // Apply correct icons to ALL nav items based on their class list
+  function syncAllIcons() {
+    navItems.forEach(link => {
+      setIcon(link, link.classList.contains('active') ? 'active' : 'normal');
+    });
+  }
+
   // Set initial active based on current page
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
   navItems.forEach(link => {
@@ -13,6 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
       link.classList.add('active');
     }
   });
+
+  // Sync icons after active class is set
+  syncAllIcons();
 
   // Hamburger toggle
   if (hamburgerBtn) {
@@ -41,8 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       
-      navItems.forEach(i => i.classList.remove('active'));
+      navItems.forEach(i => {
+        i.classList.remove('active');
+        setIcon(i, 'normal');
+      });
       item.classList.add('active');
+      setIcon(item, 'active');
       
       body.classList.remove('mobile-nav-open'); // Close mobile menu
       
@@ -50,35 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = href;
       }
     });
-    
-    // Hover handling
-    item.addEventListener('mouseenter', () => {
-      if (!item.classList.contains('active')) {
-        // Non-active: full hover
-        item.style.transform = 'translateY(-2px)';
-        item.style.borderColor = 'var(--border-strong)';
-        item.style.background = 'rgba(255, 255, 255, 0.06)';
-        item.style.boxShadow = '0 18px 38px rgba(5, 15, 25, 0.45)';
-        item.style.color = '#000000';
-      } else {
-        // Active: only color change to black
-        item.style.color = '#000000';
-      }
-    });
-    
-    item.addEventListener('mouseleave', () => {
-      if (!item.classList.contains('active')) {
-        // Reset non-active
-        item.style.transform = '';
-        item.style.borderColor = '';
-        item.style.background = '';
-        item.style.boxShadow = '';
-        item.style.color = '';
-      } else {
-        // Reset active color
-        item.style.color = '';
-      }
-    });
+    // Hover handled by CSS in index.html and cart.html now
   });
 
   // Close on document click (outside sidebar)

@@ -3,6 +3,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
 import { getFirestore, collection, addDoc, getDocs } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+import { getDatabase } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDd0qqrkRLzq7UyK5_MwZv6tYAnHBeWHHg",
@@ -17,6 +18,7 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+export const rtdb = getDatabase(app);
 
 // Firestore helpers
 export async function addTestData() {

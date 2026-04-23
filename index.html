@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="navbar-complete.js"></script>
   <script src="navbar-script.js"></script>
+  <script type="module" src="auth.js"></script>
   <style>
     :root {
       --bg: #ffffff;
@@ -114,6 +115,15 @@
       border-color: var(--border-strong);
       background: rgba(255, 255, 255, 0.06);
       box-shadow: 0 18px 38px rgba(5, 15, 25, 0.45);
+    }
+
+    button.nav-link {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      padding: 0 18px;
     }
 
     /* Mobile styles */
@@ -263,6 +273,279 @@
         overflow: hidden;
       }
     }
+
+    /* ── Home section layout ─────────────────────────── */
+    #home-section {
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      /* Add subtle visual depth to background */
+      background: radial-gradient(circle at 70% 50%, rgba(170, 205, 220, 0.3) 0%, transparent 60%);
+    }
+
+    .home-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: var(--content-width);
+      margin: 0 auto;
+      padding: 0 24px;
+      gap: 60px;
+      height: calc(100vh - 140px); /* Fill space safely without triggering scroll */
+      box-sizing: border-box;
+    }
+
+    .home-left { 
+      flex: 1; 
+      padding-right: 2vw;
+    }
+
+    .brand-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 6vw, 80px);
+      color: #1f150f;
+      line-height: 1.1;
+      letter-spacing: 4px;
+      margin: 0;
+      white-space: nowrap;
+      text-shadow: 2px 4px 12px rgba(0, 0, 0, 0.08); /* Subtle depth */
+    }
+
+    .brand-tagline {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(16px, 2vw, 24px);
+      color: #1f150f;
+      opacity: 0.85;
+      margin-top: 18px; /* Increased typography spacing */
+      font-weight: 500;
+      text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.04);
+    }
+
+    /* ── Feature Pill ─────────────────────────────────── */
+    .feature-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 18px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      font-family: 'Sora', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1f150f;
+      letter-spacing: 0.5px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .feature-pill span {
+      opacity: 0.85;
+    }
+    .feature-pill .dot {
+      width: 4px;
+      height: 4px;
+      background: #1f150f;
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+
+    .home-right {
+      flex: 0 0 auto;
+    }
+
+    .custom-order-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .custom-order-img {
+      max-width: 460px; /* Increased image size */
+      max-height: 55vh;
+      width: 100%;
+      object-fit: contain;
+      border-radius: 22px;
+      box-shadow:
+        0 0 35px rgba(170, 205, 220, 0.6),
+        0 0 70px rgba(170, 205, 220, 0.35);
+      animation: imgGlow 3s ease-in-out infinite alternate;
+      transition: transform 0.4s ease;
+    }
+    .custom-order-img:hover { transform: scale(1.02); }
+
+    @keyframes imgGlow {
+      from { box-shadow: 0 0 35px rgba(170,205,220,0.6), 0 0 70px rgba(170,205,220,0.35); }
+      to   { box-shadow: 0 0 50px rgba(170,205,220,0.85), 0 0 100px rgba(170,205,220,0.5); }
+    }
+
+    .custom-order-btn {
+      padding: 15px 40px;
+      background: linear-gradient(135deg, #AACDDC 0%, #90C1D2 100%);
+      border: none;
+      border-radius: 999px;
+      color: #1f150f;
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow:
+        0 0 22px rgba(170,205,220,0.55),
+        0 0 44px rgba(170,205,220,0.25);
+      animation: btnGlow 3s ease-in-out infinite alternate;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    @keyframes btnGlow {
+      from { box-shadow: 0 0 22px rgba(170,205,220,0.55), 0 0 44px rgba(170,205,220,0.25); }
+      to   { box-shadow: 0 0 34px rgba(170,205,220,0.75), 0 0 68px rgba(170,205,220,0.4); }
+    }
+
+    .custom-order-btn:hover {
+      transform: translateY(-4px) scale(1.07);
+      box-shadow:
+        0 0 38px rgba(170,205,220,0.85),
+        0 0 76px rgba(170,205,220,0.5),
+        0 10px 28px rgba(0,0,0,0.13);
+      animation: none;
+    }
+    .custom-order-btn:active {
+      transform: translateY(-1px) scale(1.03);
+    }
+
+    /* ── Scroll hint ──────────────────────────────────── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 120px; /* Moved up significantly from bottom */
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      pointer-events: none;
+    }
+
+    .scroll-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: #1f150f;
+      opacity: 0;
+      animation: textPeek 5s ease-in-out infinite;
+      white-space: nowrap;
+    }
+
+    @keyframes textPeek {
+      0%, 65%, 100% { opacity: 0; transform: translateY(4px); }
+      18%, 50%      { opacity: 0.75; transform: translateY(0); }
+    }
+
+    .scroll-arrow {
+      color: #1f150f;
+      opacity: 0.65;
+      animation: arrowBounce 1.8s ease-in-out infinite;
+    }
+
+    @keyframes arrowBounce {
+      0%, 100% { transform: translateY(0); opacity: 0.65; }
+      50%      { transform: translateY(10px); opacity: 1; }
+    }
+
+    /* ── Glassmorphism popup ──────────────────────────── */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.32);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 200;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+    .popup-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .popup-card {
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 26px;
+      padding: 48px;
+      width: calc(100vw - 20px);
+      height: calc(100vh - 20px);
+      max-width: none;
+      position: relative;
+      box-shadow: 0 30px 90px rgba(0, 0, 0, 0.22);
+      transform: scale(0.9) translateY(24px);
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      overflow-y: auto; /* allow scrolling inside if needed */
+    }
+    .popup-overlay.open .popup-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 50%;
+      color: #1f150f;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: all 0.3s ease;
+    }
+    .popup-close:hover {
+      background: rgba(255, 255, 255, 0.32);
+      transform: rotate(90deg);
+      border-color: rgba(255,255,255,0.45);
+    }
+
+    /* ── Home mobile responsive ──────────────────────── */
+    @media (max-width: 768px) {
+      .home-content {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        gap: 28px;
+        padding: 0 16px;
+      }
+      .brand-title {
+        font-size: clamp(36px, 11vw, 58px);
+      }
+      .custom-order-img {
+        max-width: 220px;
+      }
+      .custom-order-btn {
+        padding: 13px 32px;
+        font-size: 15px;
+      }
+    }
+
+    #products-section {
+      height: 100vh;
+      background: #F3E3D0; /* Keep theme background */
+    }
   </style>
 </head>
 <body>
@@ -275,16 +558,72 @@
     </button>
 
     <div class="nav-links">
-      <a class="nav-link active" href="index.html"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
-      <a class="nav-link" href="products.html"><img src="https://cdn-icons-png.flaticon.com/512/4804/4804045.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
-      <a class="nav-link" href="cart.html"><img src="https://static.vecteezy.com/system/resources/previews/019/787/018/non_2x/shopping-cart-icon-shopping-basket-on-transparent-background-free-png.png" alt="Cart" style="width:28px;height:20px;margin-right:8px;">Cart</a>
-      <a class="nav-link" href="login.html"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkbpugr3eQwxV_gINbKOZE_RKL3_pbvoTiuQ&s" alt="Login" style="width:20px;height:20px;margin-right:8px;">SignUp/Login</a>
+      <a class="nav-link active" href="index.html"><img class="nav-icon" src="homef.png" data-normal="homen.png" data-active="homef.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
+      <a class="nav-link" href="products.html"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
+      <a class="nav-link" href="cart.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Cart" style="width:20px;height:20px;margin-right:8px;">Cart</a>
+      <a class="nav-link auth-nav-btn" href="login.html"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Login/SignUp" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
+      <button class="nav-link user-nav-btn" id="nav-user-btn" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="User" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
+      <button class="nav-link user-nav-btn" id="nav-logout-btn" style="display: none; padding: 0 12px; font-size: 14px;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Logout" style="width:16px;height:16px;margin-right:4px;">Logout</button>
     </div>
   </nav>
 
   <div id="nav-overlay"></div>
 
   <div id="mainContent">
+    <section id="home-section">
+      <div class="home-content">
+        <div class="home-left">
+          <div class="feature-pill">
+            <span>Custom Design</span><div class="dot"></div>
+            <span>Best Price</span><div class="dot"></div>
+            <span>ALL IN DELIVERY</span>
+          </div>
+          <h1 class="brand-title">ESS KAY SPORTS WEAR</h1>
+          <p class="brand-tagline">Where Comfort Means Professionalism.</p>
+        </div>
+        <div class="home-right">
+          <div class="custom-order-wrapper">
+            <img src="CustomOrderImg.png" alt="Custom Order" class="custom-order-img">
+            <button class="custom-order-btn" id="customOrderBtn">Custom Order</button>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-hint">
+        <span class="scroll-text">Scroll Down For Products..</span>
+        <div class="scroll-arrow">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14m0 0l-6-6m6 6l6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+    <section id="products-section">
+      <!-- Products content goes here -->
+    </section>
   </div>
+
+  <!-- Custom Order Popup -->
+  <div class="popup-overlay" id="customPopup">
+    <div class="popup-card">
+      <button class="popup-close" id="popupClose">&times;</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn   = document.getElementById('customOrderBtn');
+      const popup = document.getElementById('customPopup');
+      const close = document.getElementById('popupClose');
+      if (btn && popup && close) {
+        btn.addEventListener('click', () => popup.classList.add('open'));
+        close.addEventListener('click', () => popup.classList.remove('open'));
+        popup.addEventListener('click', (e) => {
+          if (e.target === popup) popup.classList.remove('open');
+        });
+      }
+    });
+  </script>
+
+  <script src="scroll-behavior.js"></script>
 </body>
 </html>

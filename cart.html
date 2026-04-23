@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="navbar-complete.js"></script>
   <script src="navbar-script.js"></script>
+  <script type="module" src="auth.js"></script>
   <style>
     :root {
       --bg: #ffffff;
@@ -113,6 +114,15 @@
       border-color: var(--border-strong);
       background: rgba(255, 255, 255, 0.06);
       box-shadow: 0 18px 38px rgba(5, 15, 25, 0.45);
+    }
+
+    button.nav-link {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      padding: 0 18px;
     }
 
     /* Mobile styles */
@@ -234,10 +244,12 @@
     </button>
 
     <div class="nav-links">
-      <a class="nav-link" href="index.html"><img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
-      <a class="nav-link" href="products.html"><img src="https://cdn-icons-png.flaticon.com/512/4804/4804045.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
-      <a class="nav-link active" href="cart.html"><img src="https://static.vecteezy.com/system/resources/previews/019/787/018/non_2x/shopping-cart-icon-shopping-basket-on-transparent-background-free-png.png" alt="Cart" style="width:28px;height:20px;margin-right:8px;">Cart</a>
-      <a class="nav-link" href="login.html"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkbpugr3eQwxV_gINbKOZE_RKL3_pbvoTiuQ&s" alt="Login" style="width:20px;height:20px;margin-right:8px;">SignUp/Login</a>
+      <a class="nav-link" href="index.html"><img class="nav-icon" src="homen.png" data-normal="homen.png" data-active="homef.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
+      <a class="nav-link" href="products.html"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
+      <a class="nav-link active" href="cart.html"><img class="nav-icon" src="cartf.png" data-normal="cartn.png" data-active="cartf.png" alt="Cart" style="width:20px;height:20px;margin-right:8px;">Cart</a>
+      <a class="nav-link auth-nav-btn" href="login.html"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Login/SignUp" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
+      <button class="nav-link user-nav-btn" id="nav-user-btn" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="User" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
+      <button class="nav-link user-nav-btn" id="nav-logout-btn" style="display: none; padding: 0 12px; font-size: 14px;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Logout" style="width:16px;height:16px;margin-right:4px;">Logout</button>
     </div>
   </nav>
 
