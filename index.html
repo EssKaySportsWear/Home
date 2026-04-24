@@ -546,6 +546,174 @@
       height: 100vh;
       background: #F3E3D0; /* Keep theme background */
     }
+
+    /* ── Custom Order Form Styles ── */
+    .popup-card {
+      padding: 32px 48px;
+      max-width: 800px;
+      height: auto;
+      max-height: 90vh;
+      color: #1f150f;
+    }
+    .popup-card h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+    .custom-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .full-width {
+      grid-column: span 2;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .form-group label {
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.1);
+      background: rgba(255, 255, 255, 0.4);
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: #72a5b8;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(114, 165, 184, 0.15);
+    }
+    .form-group input:invalid:not(:placeholder-shown) {
+      border-color: #ff4d4d;
+    }
+    .upload-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .upload-box {
+      border: 2px dashed rgba(0,0,0,0.15);
+      border-radius: 20px;
+      height: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .upload-box:hover {
+      border-color: #72a5b8;
+      background: rgba(114, 165, 184, 0.05);
+      transform: translateY(-2px);
+    }
+    .upload-placeholder {
+      font-size: 12px;
+      text-align: center;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .upload-placeholder svg {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+    .image-preview {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      z-index: 2;
+    }
+    .options-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding: 16px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 16px;
+    }
+    .radio-group {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .radio-group label {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      text-transform: none;
+      font-size: 14px;
+    }
+    .submit-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 16px;
+      border: none;
+      border-radius: 16px;
+      background: #1f150f;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .submit-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    .submit-btn:not(:disabled):hover {
+      background: #3a2a1e;
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+    }
+    .submit-btn:active {
+      transform: translateY(-2px);
+    }
+    @media (max-width: 768px) {
+      .popup-card {
+        padding: 32px 24px;
+        width: 95vw;
+      }
+      .form-grid, .upload-row {
+        grid-template-columns: 1fr;
+      }
+      .full-width {
+        grid-column: span 1;
+      }
+    }
   </style>
 </head>
 <body>
@@ -606,21 +774,239 @@
   <div class="popup-overlay" id="customPopup">
     <div class="popup-card">
       <button class="popup-close" id="popupClose">&times;</button>
+      <h2>Custom Order</h2>
+      <form id="customOrderForm" class="custom-form">
+        <div class="form-grid">
+          <!-- Type -->
+          <div class="form-group">
+            <label>Product Type</label>
+            <select name="type" required>
+              <option value="" disabled selected>Select Type</option>
+              <option value="T-shirt">T-shirt</option>
+              <option value="Lower">Lower</option>
+            </select>
+          </div>
+          <!-- Fabric -->
+          <div class="form-group">
+            <label>Fabric</label>
+            <input type="text" name="fabric" placeholder="e.g. Cotton, Lycra, Dry-fit" required>
+          </div>
+          <!-- Size -->
+          <div class="form-group">
+            <label>Size</label>
+            <select name="size" required>
+              <option value="" disabled selected>Select Size</option>
+              <option value="S">Small (S)</option>
+              <option value="M">Medium (M)</option>
+              <option value="L">Large (L)</option>
+              <option value="XL">Extra Large (XL)</option>
+              <option value="XXL">Double XL (XXL)</option>
+            </select>
+          </div>
+          <!-- Quantity -->
+          <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" name="quantity" min="1" value="1" required>
+          </div>
+          <!-- Gender -->
+          <div class="form-group">
+            <label>Gender</label>
+            <select name="gender" required>
+              <option value="" disabled selected>Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <!-- Address -->
+          <div class="form-group full-width">
+            <label>Delivery Address</label>
+            <textarea name="address" rows="2" placeholder="Enter your full address with pincode" required></textarea>
+          </div>
+          
+          <!-- Image Uploads -->
+          <div class="form-group">
+            <label>Front Design Image (Required)</label>
+            <div class="upload-box" id="frontUploadBox">
+              <input type="file" id="frontImage" accept="image/*" required hidden>
+              <div class="upload-placeholder">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <span>Upload Front View</span>
+              </div>
+              <img id="frontPreview" class="image-preview" src="" alt="">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Back Design Image (Required)</label>
+            <div class="upload-box" id="backUploadBox">
+              <input type="file" id="backImage" accept="image/*" required hidden>
+              <div class="upload-placeholder">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <span>Upload Back View</span>
+              </div>
+              <img id="backPreview" class="image-preview" src="" alt="">
+            </div>
+          </div>
+
+          <!-- Custom Options -->
+          <div class="form-group">
+            <label>Collar</label>
+            <div class="radio-group">
+              <label><input type="radio" name="collar" value="Yes" required> Yes</label>
+              <label><input type="radio" name="collar" value="No"> No</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Chain Type</label>
+            <select name="chainType" required>
+              <option value="No Chain">No Chain</option>
+              <option value="Half Chain">Half Chain</option>
+              <option value="Full Chain">Full Chain</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Sleeves</label>
+            <select name="sleeves" required>
+              <option value="Half Sleeves">Half Sleeves</option>
+              <option value="Full Sleeves">Full Sleeves</option>
+            </select>
+          </div>
+
+          <!-- Notes -->
+          <div class="form-group full-width">
+            <label>Additional Notes (Optional)</label>
+            <textarea name="notes" rows="2" placeholder="Any extra instructions..."></textarea>
+          </div>
+        </div>
+        
+        <button type="submit" id="submitOrderBtn" class="submit-btn" disabled>Place Custom Order</button>
+      </form>
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { auth, rtdb } from './firebase.js';
+    import { ref, push, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { showToast, updateToast } from './toast-system.js';
+
     document.addEventListener('DOMContentLoaded', () => {
-      const btn   = document.getElementById('customOrderBtn');
+      const btn = document.getElementById('customOrderBtn');
       const popup = document.getElementById('customPopup');
       const close = document.getElementById('popupClose');
+      const form = document.getElementById('customOrderForm');
+      const submitBtn = document.getElementById('submitOrderBtn');
+      
+      const frontInput = document.getElementById('frontImage');
+      const backInput = document.getElementById('backImage');
+      const frontUploadBox = document.getElementById('frontUploadBox');
+      const backUploadBox = document.getElementById('backUploadBox');
+      const frontPreview = document.getElementById('frontPreview');
+      const backPreview = document.getElementById('backPreview');
+
+      let currentUser = null;
+
+      onAuthStateChanged(auth, (user) => {
+        currentUser = user;
+      });
+
       if (btn && popup && close) {
-        btn.addEventListener('click', () => popup.classList.add('open'));
+        btn.addEventListener('click', () => {
+          if (!currentUser) {
+            window.location.href = 'login.html';
+            return;
+          }
+          popup.classList.add('open');
+        });
         close.addEventListener('click', () => popup.classList.remove('open'));
         popup.addEventListener('click', (e) => {
           if (e.target === popup) popup.classList.remove('open');
         });
       }
+
+      // Image Upload Handling
+      const handleImageUpload = (input, preview, box) => {
+        const file = input.files[0];
+        if (file) {
+          if (file.size > 500000) { // 500KB limit for RTDB base64
+            showToast('Image too large (max 500KB)', 'error');
+            input.value = '';
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            box.querySelector('.upload-placeholder').style.display = 'none';
+            validateForm();
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      frontUploadBox?.addEventListener('click', () => frontInput.click());
+      backUploadBox?.addEventListener('click', () => backInput.click());
+      frontInput?.addEventListener('change', () => handleImageUpload(frontInput, frontPreview, frontUploadBox));
+      backInput?.addEventListener('change', () => handleImageUpload(backInput, backPreview, backUploadBox));
+
+      // Validation
+      const validateForm = () => {
+        const isValid = form.checkValidity() && frontInput.files.length > 0 && backInput.files.length > 0;
+        submitBtn.disabled = !isValid;
+      };
+
+      form?.addEventListener('input', validateForm);
+      form?.addEventListener('change', validateForm);
+
+      // Form Submit
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!currentUser) return;
+
+        const toast = showToast('Placing your order...', 'loading');
+        submitBtn.disabled = true;
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<div class="toast-spinner" style="width:20px;height:20px;border-width:3px;"></div> Processing...';
+
+        const formData = new FormData(form);
+        const orderData = {
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
+          timestamp: serverTimestamp(),
+          type: formData.get('type'),
+          fabric: formData.get('fabric'),
+          size: formData.get('size'),
+          quantity: parseInt(formData.get('quantity')),
+          gender: formData.get('gender'),
+          address: formData.get('address'),
+          collar: formData.get('collar'),
+          chainType: formData.get('chainType'),
+          sleeves: formData.get('sleeves'),
+          notes: formData.get('notes'),
+          frontImage: frontPreview.src,
+          backImage: backPreview.src,
+          status: 'pending'
+        };
+
+        try {
+          await push(ref(rtdb, 'customOrders'), orderData);
+          updateToast(toast, 'Custom order placed successfully!', 'success');
+          
+          // Reset form
+          form.reset();
+          frontPreview.style.display = 'none';
+          backPreview.style.display = 'none';
+          frontUploadBox.querySelector('.upload-placeholder').style.display = 'flex';
+          backUploadBox.querySelector('.upload-placeholder').style.display = 'flex';
+          validateForm();
+          
+          setTimeout(() => popup.classList.remove('open'), 1000);
+        } catch (error) {
+          updateToast(toast, 'Failed to place order: ' + error.message, 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        }
+      });
     });
   </script>
 

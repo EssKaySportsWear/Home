@@ -16,18 +16,29 @@
   ```
 - If your users are NOT inside a folder named `users`, or if the ID is NOT the UID, the login will fail.
 
-### 3. Rules Reminder
-- Use these rules:
+### 3. Rules Update (CRITICAL)
+- To fix "PERMISSION_DENIED", copy and paste these rules into your **Firebase Console > Realtime Database > Rules** tab:
 ```json
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
+    "users": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "customOrders": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'",
+      ".write": "auth != null"
+    }
   }
 }
 ```
-*(Try these "Open" rules temporarily just to test if permissions are the issue. If it works, we will lock it down later).*
+*Note: The `customOrders` write permission allows any logged-in user to place an order, but only the admin can read them.*
 
-### 4. Deployment Note
-- **Ctrl + F5** to hard refresh.
-- Check the console (F12) for any "Permission Denied" errors.
+### 4. Image Size Limit
+- If you still get an error, ensure your images are **small (under 500KB)**. Large images can exceed the database's single-node limit.
+
+### 5. Deployment Note
+- **Ctrl + F5** to hard refresh after updating rules.
+- Check the console (F12) for any specific errors.
