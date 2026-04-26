@@ -3,52 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cart - EssKay Sportswear</title>
-  <script type="module" src="firebase.js"></script>
-  <script type="module" src="app.js"></script>
+  <title>Your Cart - EssKay Sportswear</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="navbar-complete.js"></script>
-  <script src="navbar-script.js"></script>
-  <script type="module" src="auth.js"></script>
+  <script type="module" src="navbar-complete.js"></script>
   <style>
     :root {
-      --bg: #ffffff;
-      --bg-soft: #0a1018;
-      --surface: rgba(255, 255, 255, 0.08);
-      --surface-strong: rgba(8, 13, 21, 0.74);
-      --surface-muted: rgba(255, 255, 255, 0.04);
-      --border: rgba(255, 255, 255, 0.12);
-      --border-strong: rgba(123, 231, 255, 0.18);
-      --text: #f8fbff;
-      --muted: #aab4c2;
-      --muted-strong: #D2C4B4;
-      --accent: #7be7ff;
-      --accent-strong: #96fff0;
-      --shadow: 0 25px 80px rgba(0, 0, 0, 0.45);
-      --radius-lg: 32px;
-      --content-width: min(1240px, calc(100% - 32px));
+      --bg: #F3E3D0;
+      --accent: #72a5b8;
+      --text: #1f150f;
       --ease: 220ms ease;
+      --content-width: min(1240px, calc(100% - 32px));
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
       font-family: "Sora", sans-serif;
+      background: var(--bg);
       color: var(--text);
-      background: #F3E3D0;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    /* Desktop styles */
+    /* Navbar Styles copied from index */
     .site-nav {
-      position: relative;
+      position: sticky;
       top: 18px;
-      z-index: 30;
+      z-index: 1000;
       width: var(--content-width);
       margin: 18px auto 0;
       padding: 14px 18px;
@@ -59,63 +40,32 @@
       gap: 16px;
       background: rgba(255,255,255,0.1);
       backdrop-filter: blur(25px);
-      position: sticky;
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255,255,255,0.2);
     }
-
-    @media (min-width: 769px) {
-      #mobile-menu-btn {
-        display: none;
-      }
-      .nav-links {
-        translate: none !important;
-      }
-    }
-
-    #indicator {
-      position: absolute;
-      top: 5px;
-      left: 0;
-      height: calc(100% - 10px);
-      border-radius: 999px;
-      background: #AACDDC;
-      z-index: 1;
-      transition: all 0.3s cubic-bezier(0.25,1,0.5,1);
-      width: 0;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
+    .nav-links { display: flex; align-items: center; gap: 8px; }
     .nav-link {
       position: relative;
-      z-index: 2;
       display: inline-flex;
       align-items: center;
       min-height: 48px;
       padding: 0 18px;
       border-radius: 999px;
-      transition: transform var(--ease), border-color var(--ease), background var(--ease), box-shadow var(--ease), color var(--ease);
-      border: 1px solid transparent;
       color: #000000;
       text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
     }
-
     .nav-link.active {
       background: #AACDDC;
-      color: white;
+      color: #1f150f;
       border-radius: 999px;
+      font-weight: 700;
     }
+    .nav-link:hover { transform: translateY(-2px); background: rgba(255,255,255,0.2); }
 
-    .nav-link:hover {
-      transform: translateY(-2px);
-      border-color: var(--border-strong);
-      background: rgba(255, 255, 255, 0.06);
-      box-shadow: 0 18px 38px rgba(5, 15, 25, 0.45);
-    }
-
+    /* Mobile Menu styles */
+    #mobile-menu-btn { display: none; background: none; border: none; padding: 8px; cursor: pointer; }
     button.nav-link {
       background: none;
       border: none;
@@ -124,140 +74,249 @@
       font-size: inherit;
       padding: 0 18px;
     }
-
-    /* Mobile styles */
     @media (max-width: 768px) {
-      .site-nav {
-        justify-content: flex-start;
-        gap: 12px;
-        padding: 12px;
-        width: auto;
-        max-width: calc(100vw - 32px);
-        margin: 12px auto 0;
-        top: 12px;
-      }
-
-      #mobile-menu-btn {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 4px;
-        background: none;
-        border: none;
-        padding: 8px;
-        cursor: pointer;
-        z-index: 40;
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        transition: all var(--ease);
-      }
-
-      #mobile-menu-btn span {
-        width: 24px;
-        height: 2px;
-        background: var(--muted-strong);
-        transition: all var(--ease);
-        transform-origin: center;
-      }
-
-      body.mobile-nav-open #mobile-menu-btn span:nth-child(1) {
-        transform: rotate(45deg) translate(6px, 6px);
-      }
-
-      body.mobile-nav-open #mobile-menu-btn span:nth-child(2) {
-        opacity: 0;
-      }
-
-      body.mobile-nav-open #mobile-menu-btn span:nth-child(3) {
-        transform: rotate(-45deg) translate(6px, -6px);
-      }
-
+      .site-nav { justify-content: flex-start; margin: 12px auto; top: 12px; }
+      #mobile-menu-btn { display: flex; flex-direction: column; gap: 4px; }
+      #mobile-menu-btn span { width: 24px; height: 2px; background: #000; }
       .nav-links {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 280px;
-        height: 100vh;
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(25px);
-        flex-direction: column;
-        padding: 80px 20px 20px;
-        gap: 0;
-        translate: -100% 0;
-        transition: translate var(--ease);
-        z-index: 35;
-        box-shadow: var(--shadow);
+        position: fixed; top: 0; left: 0; width: 280px; height: 100vh;
+        background: rgba(255,255,255,0.95); backdrop-filter: blur(20px);
+        flex-direction: column; padding: 80px 20px; translate: -100% 0;
+        transition: translate 0.3s ease;
       }
-
-      body.mobile-nav-open .nav-links {
-        translate: 0 0;
-      }
-
-      .nav-link {
-        justify-content: flex-start;
-        padding: 16px 20px;
-        margin-bottom: 8px;
-        min-height: 56px;
-        font-size: 16px;
-        border-radius: 16px;
-        width: 100%;
-      }
-
-      #indicator {
-        position: absolute !important;
-        border-radius: 16px;
-      }
-
-      #nav-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0,0,0,0.5);
-        z-index: 32;
-        opacity: 0;
-        visibility: hidden;
-        transition: all var(--ease);
-      }
-
-      body.mobile-nav-open #nav-overlay {
-        opacity: 1;
-        visibility: visible;
-      }
-
-      body.mobile-nav-open {
-        overflow: hidden;
-      }
+      body.mobile-nav-open .nav-links { translate: 0 0; }
+      .nav-link { width: 100%; justify-content: flex-start; }
     }
+
+    .cart-container {
+      max-width: 1200px;
+      margin: 60px auto;
+      padding: 0 24px;
+    }
+    .cart-header { margin-bottom: 48px; }
+    .cart-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 64px; margin: 0; letter-spacing: 2px; }
+    
+    .cart-grid { display: grid; grid-template-columns: 1fr 380px; gap: 40px; }
+    @media (max-width: 968px) { .cart-grid { grid-template-columns: 1fr; } }
+
+    .cart-item {
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex; gap: 24px; margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+    .item-img { width: 120px; height: 120px; border-radius: 16px; object-fit: cover; }
+    .item-info { flex: 1; }
+    .item-details { display: flex; gap: 16px; margin-bottom: 16px; font-size: 14px; opacity: 0.6; }
+    .color-preview { width: 14px; height: 14px; border-radius: 50%; display: inline-block; vertical-align: middle; border: 1px solid rgba(0,0,0,0.1); }
+    .item-qty-controls { display: flex; align-items: center; gap: 16px; }
+    .qty-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+    .remove-btn { color: #ff4d4d; background: none; border: none; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 12px; }
+
+    .order-summary { background: #1f150f; color: white; border-radius: 32px; padding: 32px; height: fit-content; position: sticky; top: 120px; }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 16px; }
+    .summary-total { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 24px; padding-top: 24px; font-size: 24px; font-weight: 700; }
+    .checkout-btn { width: 100%; background: var(--accent); color: white; border: none; border-radius: 16px; padding: 18px; font-family: 'Bebas Neue', sans-serif; font-size: 24px; cursor: pointer; margin-top: 32px; }
+
+    .empty-cart { text-align: center; padding: 80px 20px; }
+    .empty-cart h2 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; }
+    .shop-now { display: inline-block; margin-top: 24px; background: #1f150f; color: white; padding: 16px 40px; border-radius: 14px; text-decoration: none; font-weight: 600; }
   </style>
 </head>
-
 <body>
+
   <nav class="site-nav">
-
     <button id="mobile-menu-btn" aria-label="Toggle menu">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </button>
-
     <div class="nav-links">
       <a class="nav-link" href="index.html"><img class="nav-icon" src="homen.png" data-normal="homen.png" data-active="homef.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
-      <a class="nav-link" href="products.html"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
-      <a class="nav-link active" href="cart.html"><img class="nav-icon" src="cartf.png" data-normal="cartn.png" data-active="cartf.png" alt="Cart" style="width:20px;height:20px;margin-right:8px;">Cart</a>
+      <a class="nav-link" href="index.html#products-section"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
+      <a class="nav-link active" href="cart.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Cart" style="width:20px;height:20px;margin-right:8px;">Cart</a>
+      <a class="nav-link" href="orders.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Orders" style="width:20px;height:20px;margin-right:8px;">My Orders</a>
       <a class="nav-link auth-nav-btn" href="login.html"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Login/SignUp" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
       <button class="nav-link user-nav-btn" id="nav-user-btn" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="User" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
-      <button class="nav-link user-nav-btn" id="nav-logout-btn" style="display: none; padding: 0 12px; font-size: 14px;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Logout" style="width:16px;height:16px;margin-right:4px;">Logout</button>
     </div>
   </nav>
 
-  <div id="nav-overlay"></div>
-
-  <div id="mainContent">
-    <h1>Shopping Cart</h1>
-    <p>Your cart items will be loaded here via app.js.</p>
+  <div class="cart-container" id="cart-content">
+    <div id="loading-cart" style="text-align: center; padding: 100px;">
+      <p style="opacity: 0.5;">Loading your bag...</p>
+    </div>
   </div>
+
+  <script type="module">
+    import { auth, rtdb } from './firebase.js';
+    import { ref, get, onValue, push, update, remove } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { showToast, showConfirm } from './toast-system.js';
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        document.getElementById('cart-content').innerHTML = `
+          <div class="empty-cart">
+            <h2>Please login to view your cart</h2>
+            <a href="login.html" class="shop-now">Login Now</a>
+          </div>
+        `;
+        return;
+      }
+      initCart(user);
+    });
+
+    function initCart(user) {
+      const cartRef = ref(rtdb, `carts/${user.uid}`);
+      onValue(cartRef, (snap) => {
+        if (!snap.exists()) {
+          renderEmpty();
+          return;
+        }
+        renderCart(user, snap.val());
+      });
+    }
+
+    function renderEmpty() {
+      document.getElementById('cart-content').innerHTML = `
+        <div class="empty-cart">
+          <h2>Your bag is empty</h2>
+          <a href="index.html#products-section" class="shop-now">Continue Shopping</a>
+        </div>
+      `;
+    }
+
+    function renderCart(user, cartData) {
+      const container = document.getElementById('cart-content');
+      container.innerHTML = `
+        <div class="cart-header">
+          <h1>My Bag <span style="font-family:Sora; font-size:20px; opacity:0.4;">(${Object.keys(cartData).length} items)</span></h1>
+        </div>
+        <div class="cart-grid">
+          <div class="cart-items" id="items-list"></div>
+          <div class="order-summary" id="order-summary"></div>
+        </div>
+      `;
+
+      const list = document.getElementById('items-list');
+      let subtotal = 0;
+
+      Object.keys(cartData).forEach(cartId => {
+        const item = cartData[cartId];
+        subtotal += (item.price * item.quantity);
+
+        const card = document.createElement('div');
+        card.className = 'cart-item';
+        card.innerHTML = `
+          <img src="${item.image}" class="item-img">
+          <div class="item-info">
+            <h3>${item.name}</h3>
+            <div class="item-details">
+              <span>Size: <strong>${item.size}</strong></span>
+              <span>Color: <div class="color-preview" style="background:${item.color}"></div></span>
+              <span>Neck: <strong>${item.neck || 'Standard'}</strong></span>
+              <span>Fastener: <strong>${item.fastener || 'Plain'}</strong></span>
+            </div>
+            <div class="item-qty-controls">
+              <button class="qty-btn" onclick="window.updateQty('${cartId}', ${item.quantity - 1})">-</button>
+              <span style="font-weight:700;">${item.quantity}</span>
+              <button class="qty-btn" onclick="window.updateQty('${cartId}', ${item.quantity + 1})">+</button>
+              <div style="margin-left:auto; text-align:right;">
+                ${item.price > 0 ? `
+                  ${item.originalPrice && item.originalPrice > item.price ? `<span style="font-size:12px; color:#ff4d4d; text-decoration:line-through; display:block; opacity:0.6;">₹${(item.originalPrice * item.quantity).toFixed(2)}</span>` : ''}
+                  <span style="font-weight:700; font-size:18px; display:block;">₹${(item.price * item.quantity).toFixed(2)}</span>
+                ` : `
+                  <span style="font-weight:700; font-size:14px; color:#72a5b8; display:block;">Price to be quoted</span>
+                `}
+              </div>
+            </div>
+            <button class="remove-btn" onclick="window.removeItem('${cartId}')">Remove from bag</button>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+
+      const gst = (subtotal * 0.05);
+      const total = subtotal + gst;
+
+      document.getElementById('order-summary').innerHTML = `
+        <h3 style="font-family:'Bebas Neue'; font-size:32px; margin-top:0;">Summary</h3>
+        <div class="summary-row"><span>Subtotal</span><span>₹${subtotal.toFixed(2)}</span></div>
+        <div class="summary-row"><span>GST (5%)</span><span>₹${gst.toFixed(2)}</span></div>
+        <div class="summary-row"><span>Delivery</span><span>FREE</span></div>
+        <div class="summary-total"><div class="summary-row"><span>Total</span><span>₹${total.toFixed(2)}</span></div></div>
+        <button class="checkout-btn" onclick="window.checkout()">Checkout Now</button>
+      `;
+
+      window.updateQty = async (cartId, newQty) => {
+        if (newQty < 1) {
+          window.removeItem(cartId);
+          return;
+        }
+        await update(ref(rtdb, `carts/${user.uid}/${cartId}`), { quantity: newQty });
+      };
+
+      window.removeItem = async (cartId) => {
+        if (await showConfirm('Remove this item fully from your bag?', 'Remove Item')) {
+          await remove(ref(rtdb, `carts/${user.uid}/${cartId}`));
+          showToast('Item removed', 'success');
+        }
+      };
+
+      window.checkout = async () => {
+        const items = Object.values(cartData);
+        if (items.length === 0) return;
+
+        if (!confirm('Confirm order and proceed to checkout?')) return;
+
+        const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const gst = subtotal * 0.05;
+        const total = subtotal + gst;
+
+        const toast = showToast('Processing your order...', 'loading');
+        try {
+          const orderData = {
+            userId: auth.currentUser.uid,
+            userName: auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
+            userEmail: auth.currentUser.email,
+            items: items,
+            totalAmount: total.toFixed(2),
+            status: 'Confirmed',
+            timestamp: Date.now()
+          };
+
+          // 1. Create standard order
+          await push(ref(rtdb, 'standardOrders'), orderData);
+
+          // 2. Reduce stock for each product
+          for (const item of items) {
+            if (!item.isCustom) {
+              const pRef = ref(rtdb, `products/${item.productId}`);
+              const pSnap = await get(pRef);
+              if (pSnap.exists()) {
+                const p = pSnap.val();
+                if (p.qtyType === 'fixed') {
+                  const newStock = Math.max(0, (parseInt(p.quantity) || 0) - item.quantity);
+                  await update(pRef, { quantity: newStock });
+                }
+              }
+            }
+          }
+
+          // 3. Clear cart
+          await remove(ref(rtdb, `carts/${auth.currentUser.uid}`));
+          
+          updateToast(toast, 'Order placed successfully!', 'success');
+          setTimeout(() => {
+            window.location.href = 'orders.html';
+          }, 1500);
+        } catch (err) {
+          console.error(err);
+          updateToast(toast, 'Checkout failed: ' + err.message, 'error');
+        }
+      };
+    }
+  </script>
 </body>
 </html>

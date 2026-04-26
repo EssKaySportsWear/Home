@@ -1,44 +1,69 @@
-# FIREBASE SETUP GUIDE
+# EssKay Sportswear - Important Instructions for Human
 
-### 1. Database URL Debug
-- I have added the Database URL to the error message.
-- If you see "No account found... DB: Default", it means the `databaseURL` in `firebase.js` is NOT being picked up.
-- If you see "DB: https://...", verify that this URL is EXACTLY the same as the one in your Firebase Console.
+## 1. Firebase Rules Update (CRITICAL)
+Your current rules might be blocking the Admin Panel from loading the user list. Please update your Firebase Realtime Database rules to the following:
 
-### 2. Check Database Structure
-- Your data MUST look exactly like this in the Firebase Console:
-  ```
-  esskaysportsdata-default-rtdb
-   └── users
-        └── xyz123 (This must be the UID)
-             ├── email: "user@gmail.com"
-             └── name: "User Name"
-  ```
-- If your users are NOT inside a folder named `users`, or if the ID is NOT the UID, the login will fail.
-
-### 3. Rules Update (CRITICAL)
-- To fix "PERMISSION_DENIED", copy and paste these rules into your **Firebase Console > Realtime Database > Rules** tab:
 ```json
 {
   "rules": {
     "users": {
+      // Allow the admin to see the full list of users
+      ".read": "root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'",
       "$uid": {
-        ".read": "auth != null",
-        ".write": "auth != null && auth.uid === $uid"
+        // Allow users to see their own profile
+        ".read": "$uid === auth.uid",
+        // Allow users to edit their own profile OR admin to manage it
+        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'"
+      }
+    },
+    "products": {
+      ".read": "true",
+      ".write": "root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'"
+    },
+    "carts": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
       }
     },
     "customOrders": {
-      ".read": "auth != null && root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'",
-      ".write": "auth != null"
+      ".indexOn": ["userId"],
+      // Allow admin to see all custom orders
+      ".read": "root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'",
+      "$orderId": {
+        ".write": "auth != null",
+        ".read": "data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'"
+      }
+    },
+    "standardOrders": {
+      ".indexOn": ["userId"],
+      // Allow admin to see all standard orders
+      ".read": "root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'",
+      "$orderId": {
+        ".write": "auth != null",
+        ".read": "data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'"
+      }
+    },
+    "orders": {
+      // Allow admin to see all orders
+      ".read": "root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'",
+      "$orderId": {
+        ".write": "auth != null",
+        ".read": "data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'"
+      }
     }
   }
 }
 ```
-*Note: The `customOrders` write permission allows any logged-in user to place an order, but only the admin can read them.*
 
-### 4. Image Size Limit
-- If you still get an error, ensure your images are **small (under 500KB)**. Large images can exceed the database's single-node limit.
+## 2. Why "Error showing users" happens?
+This error occurs because the Admin Panel is trying to fetch the entire list of users from the `users` folder in your database. If the security rules (above) are not set to allow the admin (`business.esskaysportswear@gmail.com`) to read the parent folder, Firebase will block the request.
 
-### 5. Deployment Note
-- **Ctrl + F5** to hard refresh after updating rules.
-- Check the console (F12) for any specific errors.
+## 3. Admin Panel Tips
+- **Reset Password**: This sends an official Firebase email to the user.
+- **Disable User**: Setting a user to "Disabled" will prevent them from adding items to their cart or placing orders (if you implement the check on the frontend).
+- **Edit Products**: Remember to fill in the **Category** and check the **Discount** box if you want to show strikethrough pricing.
+
+## 4. Assets
+- Make sure icons like `homen.png`, `productsn.png`, `cartn.png` are in the root folder.
+- Cloudinary preset `esskay_unsigned` must be active.

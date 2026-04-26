@@ -9,8 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="navbar-complete.js"></script>
-  <script src="navbar-script.js"></script>
+  <script type="module" src="navbar-complete.js"></script>
   <script type="module" src="auth.js"></script>
   <style>
     :root {
@@ -106,8 +105,9 @@
 
     .nav-link.active {
       background: #AACDDC;
-      color: white;
+      color: #1f150f;
       border-radius: 999px;
+      font-weight: 700;
     }
 
     .nav-link:hover {
@@ -543,8 +543,128 @@
     }
 
     #products-section {
-      height: 100vh;
-      background: #F3E3D0; /* Keep theme background */
+      min-height: 100vh;
+      background: var(--bg);
+      padding: 100px 20px;
+    }
+
+    .products-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      padding-bottom: 80px;
+    }
+
+    .product-card {
+      background: white;
+      border: 1.5px solid rgba(31, 21, 15, 0.12);
+      border-radius: 20px;
+      padding: 12px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+      border-color: #1f150f;
+    }
+    .product-img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 14px;
+      background: #f8f8f8;
+      margin-bottom: 12px;
+    }
+    .product-info h3 { margin: 0; font-size: 16px; font-weight: 700; color: #1f150f; }
+    .product-info p { margin: 2px 0 8px; font-size: 11px; opacity: 0.5; font-weight: 600; text-transform: uppercase; color: #1f150f; }
+    
+    .price-tag { display: flex; align-items: center; gap: 6px; margin-top: auto; }
+    .price-old { text-decoration: line-through; opacity: 0.3; font-size: 12px; color: #1f150f; }
+    .price-new { font-weight: 800; font-size: 16px; color: #1f150f; }
+
+    .color-dots { display: flex; gap: 6px; margin-top: 12px; }
+    .color-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); }
+
+    /* ── Detail Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(15px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-content {
+      background: white;
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 32px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      padding: 40px;
+      gap: 40px;
+      position: relative;
+    }
+    .close-modal {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      background: #f0f0f0;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+    }
+    .modal-details h2 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; margin: 0 0 10px; color: #1f150f; }
+    .add-cart-btn {
+      flex: 1;
+      height: 60px;
+      background: #1f150f;
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .add-cart-btn:hover { background: #72a5b8; transform: translateY(-2px); }
+
+    /* ── Flying Animation ── */
+    @keyframes flyToCart {
+      0% { transform: scale(1); opacity: 1; top: var(--start-y); left: var(--start-x); }
+      50% { transform: scale(1.5); opacity: 1; }
+      100% { transform: scale(0.2); opacity: 0; top: var(--end-y); left: var(--end-x); }
+    }
+    .flying-qty {
+      position: fixed;
+      background: #72a5b8;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      z-index: 9999;
+      pointer-events: none;
+      animation: flyToCart 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
 
     /* ── Custom Order Form Styles ── */
@@ -727,8 +847,9 @@
 
     <div class="nav-links">
       <a class="nav-link active" href="index.html"><img class="nav-icon" src="homef.png" data-normal="homen.png" data-active="homef.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
-      <a class="nav-link" href="products.html"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
+      <a class="nav-link" href="#products-section"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
       <a class="nav-link" href="cart.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Cart" style="width:20px;height:20px;margin-right:8px;">Cart</a>
+      <a class="nav-link" href="orders.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Orders" style="width:20px;height:20px;margin-right:8px;">My Orders</a>
       <a class="nav-link auth-nav-btn" href="login.html"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Login/SignUp" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
       <button class="nav-link user-nav-btn" id="nav-user-btn" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="User" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
       <a class="nav-link admin-nav-btn" href="admin.html" id="nav-admin-link" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Admin" style="width:20px;height:20px;margin-right:8px;">Admin</a>
@@ -766,7 +887,57 @@
       </div>
     </section>
     <section id="products-section">
-      <!-- Products content goes here -->
+      <div style="max-width: 1200px; margin: 0 auto 40px; padding: 0 20px;">
+        <div style="background: rgba(255,255,255,0.7); padding: 24px; border-radius: 28px; backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+          <!-- Row 1: Search -->
+          <div style="position: relative;">
+            <input type="text" id="search-input" placeholder="Search for products..." style="width: 100%; padding: 14px 20px 14px 50px; border-radius: 14px; border: 1px solid rgba(0,0,0,0.1); outline: none; font-family: inherit; font-size: 15px; background: white;">
+            <svg style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); opacity: 0.4;" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+          </div>
+          
+          <!-- Row 2: Filters & Price -->
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <select id="fabric-filter" style="padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.1); outline: none; font-family: inherit; font-size: 13px; background: white; cursor: pointer;">
+                <option value="all">All Fabrics</option>
+                <option value="Sarina">Sarina</option>
+                <option value="Micro">Micro</option>
+                <option value="DonKnit">DonKnit</option>
+                <option value="Reeboknit">Reeboknit</option>
+                <option value="Cotton">Cotton</option>
+              </select>
+              <select id="neck-filter" style="padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.1); outline: none; font-family: inherit; font-size: 13px; background: white; cursor: pointer;">
+                <option value="all">All Neck Types</option>
+                <option value="collar">Collar</option>
+                <option value="v shape">V Shape</option>
+                <option value="u shape">U Shape</option>
+              </select>
+              <select id="fastener-filter" style="padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.1); outline: none; font-family: inherit; font-size: 13px; background: white; cursor: pointer;">
+                <option value="all">All Fasteners</option>
+                <option value="zip">Zip</option>
+                <option value="half zip">Half Zip</option>
+                <option value="plain">Plain</option>
+                <option value="buttons">Buttons</option>
+              </select>
+              <select id="sort-select" style="padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.1); outline: none; font-family: inherit; font-size: 13px; background: white; cursor: pointer; font-weight: 600;">
+                <option value="latest">Latest Arrivals</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+              </select>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 10px; background: white; padding: 6px 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08);">
+              <span style="font-size: 11px; font-weight: 700; opacity: 0.5; color: #1f150f; text-transform: uppercase;">Price:</span>
+              <input type="number" id="min-price" placeholder="Min" style="width: 50px; border: none; outline: none; font-family: inherit; font-size: 13px; background: transparent; color: #1f150f;">
+              <span style="opacity: 0.3;">-</span>
+              <input type="number" id="max-price" placeholder="Max" style="width: 50px; border: none; outline: none; font-family: inherit; font-size: 13px; background: transparent; color: #1f150f;">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="products-container" id="product-grid">
+        <!-- Products will load here -->
+      </div>
     </section>
   </div>
 
@@ -789,24 +960,43 @@
           <!-- Fabric -->
           <div class="form-group">
             <label>Fabric</label>
-            <input type="text" name="fabric" placeholder="e.g. Cotton, Lycra, Dry-fit" required>
+            <select name="fabric" required>
+              <option value="" disabled selected>Select Fabric</option>
+              <option value="Sarina">Sarina</option>
+              <option value="Micro">Micro</option>
+              <option value="Donknit">Donknit</option>
+              <option value="Reeboknit">Reeboknit</option>
+              <option value="Cotton">Cotton</option>
+              <option value="Pc matti">Pc matti</option>
+              <option value="Spun matti">Spun matti</option>
+              <option value="Hanycommatti">Hanycommatti</option>
+            </select>
           </div>
           <!-- Size -->
           <div class="form-group">
             <label>Size</label>
             <select name="size" required>
               <option value="" disabled selected>Select Size</option>
-              <option value="S">Small (S)</option>
-              <option value="M">Medium (M)</option>
-              <option value="L">Large (L)</option>
-              <option value="XL">Extra Large (XL)</option>
-              <option value="XXL">Double XL (XXL)</option>
+              <option value="22">22</option>
+              <option value="24">24</option>
+              <option value="26">26</option>
+              <option value="28">28</option>
+              <option value="30">30</option>
+              <option value="32">32</option>
+              <option value="34">34</option>
+              <option value="36">36</option>
+              <option value="38">38</option>
+              <option value="40">40</option>
+              <option value="42">42</option>
+              <option value="44">44</option>
+              <option value="46">46</option>
+              <option value="48">48</option>
             </select>
           </div>
           <!-- Quantity -->
           <div class="form-group">
-            <label>Quantity</label>
-            <input type="number" name="quantity" min="1" value="1" required>
+            <label>Quantity (Min 5)</label>
+            <input type="number" name="quantity" min="5" value="5" required>
           </div>
           <!-- Gender -->
           <div class="form-group">
@@ -831,6 +1021,7 @@
               <div class="upload-placeholder">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 <span>Upload Front View</span>
+                <span style="font-size:10px; opacity:0.3; margin-top:4px;">Max size: 999MB</span>
               </div>
               <img id="frontPreview" class="image-preview" src="" alt="">
             </div>
@@ -842,6 +1033,7 @@
               <div class="upload-placeholder">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 <span>Upload Back View</span>
+                <span style="font-size:10px; opacity:0.3; margin-top:4px;">Max size: 999MB</span>
               </div>
               <img id="backPreview" class="image-preview" src="" alt="">
             </div>
@@ -849,18 +1041,20 @@
 
           <!-- Custom Options -->
           <div class="form-group">
-            <label>Collar</label>
-            <div class="radio-group">
-              <label><input type="radio" name="collar" value="Yes" required> Yes</label>
-              <label><input type="radio" name="collar" value="No"> No</label>
-            </div>
+            <label>Fastener</label>
+            <select name="fastener" id="custom-fastener" required>
+              <option value="zip">Zip</option>
+              <option value="half zip">Half Zip</option>
+              <option value="plain">Plain</option>
+              <option value="buttons">Buttons</option>
+            </select>
           </div>
           <div class="form-group">
-            <label>Chain Type</label>
-            <select name="chainType" required>
-              <option value="No Chain">No Chain</option>
-              <option value="Half Chain">Half Chain</option>
-              <option value="Full Chain">Full Chain</option>
+            <label>Neck</label>
+            <select name="neck" id="custom-neck" required>
+              <option value="collar">Collar</option>
+              <option value="v shape">V Shape</option>
+              <option value="u shape">U Shape</option>
             </select>
           </div>
           <div class="form-group">
@@ -909,6 +1103,22 @@
         currentUser = user;
       });
 
+      // Conditional Neck logic for custom order
+      const fastenerSelect = document.getElementById('custom-fastener');
+      const neckSelect = document.getElementById('custom-neck');
+      if (fastenerSelect && neckSelect) {
+        fastenerSelect.addEventListener('change', () => {
+          const isButtons = fastenerSelect.value === 'buttons';
+          const collarOption = neckSelect.querySelector('option[value="collar"]');
+          if (!isButtons) {
+            if (neckSelect.value === 'collar') neckSelect.value = 'v shape';
+            collarOption.style.display = 'none';
+          } else {
+            collarOption.style.display = 'block';
+          }
+        });
+      }
+
       if (btn && popup && close) {
         btn.addEventListener('click', () => {
           if (!currentUser) {
@@ -916,10 +1126,17 @@
             return;
           }
           popup.classList.add('open');
+          document.body.style.overflow = 'hidden';
         });
-        close.addEventListener('click', () => popup.classList.remove('open'));
+
+        const closePopup = () => {
+          popup.classList.remove('open');
+          document.body.style.overflow = '';
+        };
+
+        close.addEventListener('click', closePopup);
         popup.addEventListener('click', (e) => {
-          if (e.target === popup) popup.classList.remove('open');
+          if (e.target === popup) closePopup();
         });
       }
 
@@ -927,8 +1144,9 @@
       const handleImageUpload = (input, preview, box) => {
         const file = input.files[0];
         if (file) {
-          if (file.size > 500000) { // 500KB limit for RTDB base64
-            showToast('Image too large (max 500KB)', 'error');
+          // 999MB Limit
+          if (file.size > 999 * 1024 * 1024) {
+            showToast('Image size exceeds 999MB limit.', 'error');
             input.value = '';
             return;
           }
@@ -962,34 +1180,60 @@
         e.preventDefault();
         if (!currentUser) return;
 
-        const toast = showToast('Placing your order...', 'loading');
+        const toast = showToast('Uploading images...', 'loading');
         submitBtn.disabled = true;
         const originalBtnText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<div class="toast-spinner" style="width:20px;height:20px;border-width:3px;"></div> Processing...';
 
-        const formData = new FormData(form);
-        const orderData = {
-          userId: currentUser.uid,
-          userEmail: currentUser.email,
-          timestamp: serverTimestamp(),
-          type: formData.get('type'),
-          fabric: formData.get('fabric'),
-          size: formData.get('size'),
-          quantity: parseInt(formData.get('quantity')),
-          gender: formData.get('gender'),
-          address: formData.get('address'),
-          collar: formData.get('collar'),
-          chainType: formData.get('chainType'),
-          sleeves: formData.get('sleeves'),
-          notes: formData.get('notes'),
-          frontImage: frontPreview.src,
-          backImage: backPreview.src,
-          status: 'pending'
-        };
-
         try {
+          // Cloudinary Upload Helper
+          const uploadToCloudinary = async (file) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'esskay_unsigned');
+            
+            const res = await fetch('https://api.cloudinary.com/v1_1/derbtnk8w/image/upload', {
+              method: 'POST',
+              body: formData
+            });
+            if (!res.ok) throw new Error('Failed to upload image to Cloudinary');
+            const data = await res.json();
+            return data.secure_url;
+          };
+
+          // Upload both images simultaneously
+          const [frontUrl, backUrl] = await Promise.all([
+            uploadToCloudinary(frontInput.files[0]),
+            uploadToCloudinary(backInput.files[0])
+          ]);
+
+          updateToast(toast, 'Placing your order...', 'loading');
+
+          const formData = new FormData(form);
+          const orderData = {
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            timestamp: Date.now(),
+            type: formData.get('type'),
+            fabric: formData.get('fabric'),
+            size: formData.get('size'),
+            quantity: parseInt(formData.get('quantity')),
+            neck: formData.get('neck'),
+            fastener: formData.get('fastener'),
+            sleeves: formData.get('sleeves'),
+            address: formData.get('address'),
+            notes: formData.get('notes'),
+            frontImage: frontUrl,
+            backImage: backUrl,
+            status: 'Pending'
+          };
+
           await push(ref(rtdb, 'customOrders'), orderData);
-          updateToast(toast, 'Custom order placed successfully!', 'success');
+          updateToast(toast, 'Order placed successfully!', 'success');
+          
+          setTimeout(() => {
+            window.location.href = 'orders.html';
+          }, 1500);
           
           // Reset form
           form.reset();
@@ -999,9 +1243,11 @@
           backUploadBox.querySelector('.upload-placeholder').style.display = 'flex';
           validateForm();
           
-          setTimeout(() => popup.classList.remove('open'), 1000);
+          setTimeout(() => {
+            closePopup();
+          }, 1000);
         } catch (error) {
-          updateToast(toast, 'Failed to place order: ' + error.message, 'error');
+          updateToast(toast, 'Error: ' + error.message, 'error');
         } finally {
           submitBtn.disabled = false;
           submitBtn.innerHTML = originalBtnText;
@@ -1011,5 +1257,321 @@
   </script>
 
   <script src="scroll-behavior.js"></script>
+  <!-- Product Detail Modal -->
+  <div class="modal-overlay" id="product-detail-modal">
+    <div class="modal-content">
+      <button class="close-modal" id="close-detail-modal">&times;</button>
+      <div class="modal-media">
+        <img src="" class="main-img" id="modal-main-img" style="width:100%; border-radius:20px; aspect-ratio:1; object-fit:cover;">
+        <div class="media-thumbs" id="modal-media-thumbs" style="display:flex; gap:10px; overflow-x:auto; margin-top:16px;"></div>
+      </div>
+      <div class="modal-details">
+        <p id="modal-fabric-tag" style="display:inline-block; padding:4px 12px; background:#F3E3D0; border-radius:8px; font-size:12px; font-weight:700; margin-bottom:20px; color:#1f150f;"></p>
+        <h2 id="modal-prod-name"></h2>
+        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:24px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
+          <div id="modal-fabric-tag" style="background:#f5f5f5; padding:6px 14px; border-radius:10px; color:#1f150f;"></div>
+          <div id="modal-neck-tag" style="background:#f5f5f5; padding:6px 14px; border-radius:10px; color:#1f150f;"></div>
+          <div id="modal-fastener-tag" style="background:#f5f5f5; padding:6px 14px; border-radius:10px; color:#1f150f;"></div>
+        </div>
+
+        <div class="option-group" style="margin-bottom:24px;">
+          <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; opacity:0.6; color:#1f150f;">Select Size</div>
+          <div class="size-grid" id="modal-prod-sizes" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+        </div>
+
+        <div class="option-group" style="margin-bottom:24px;">
+          <div style="font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; opacity:0.6; color:#1f150f;">Select Color</div>
+          <div class="color-grid" id="modal-prod-colors" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+        </div>
+
+        <div class="price-tag" style="margin-top: auto; margin-bottom: 20px;">
+          <span class="price-old" id="modal-prod-old-price"></span>
+          <span class="price-new" id="modal-prod-new-price"></span>
+        </div>
+
+        <div class="qty-control" style="display:flex; align-items:center; gap:16px; margin-top:32px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="qty-btn" id="qty-dec" style="width:40px;height:40px;border-radius:50%;border:1px solid #ddd;background:white;cursor:pointer;font-size:20px;">-</button>
+            <span id="qty-display" style="font-weight:800; font-size:20px; width:30px; text-align:center; color:#1f150f;">1</span>
+            <button class="qty-btn" id="qty-inc" style="width:40px;height:40px;border-radius:50%;border:1px solid #ddd;background:white;cursor:pointer;font-size:20px;">+</button>
+          </div>
+          <button class="add-cart-btn" id="add-prod-to-cart">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, rtdb } from './firebase.js';
+    import { ref, get, onValue, push, update } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { showToast } from './toast-system.js';
+
+    let currentUser = null;
+    let selectedSize = null;
+    let selectedColor = null;
+    let currentQty = 5;
+    let currentProduct = null;
+    let userCart = {};
+
+    onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      if (user) {
+        onValue(ref(rtdb, `carts/${user.uid}`), (snap) => {
+          userCart = snap.val() || {};
+        });
+      }
+    });
+
+    function checkMinQty() {
+      if (!userCart) return 5;
+      const alreadyInCart = Object.values(userCart).some(item => 
+        item.productId === currentProduct?.id && 
+        item.size === selectedSize && 
+        item.color === selectedColor
+      );
+      return alreadyInCart ? 1 : 5;
+    }
+
+    let allProducts = [];
+
+    // ── Load Products Logic ──
+    async function loadProducts() {
+      const grid = document.getElementById('product-grid');
+      try {
+        const snap = await get(ref(rtdb, 'products'));
+        if (!snap.exists()) {
+          grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.5;">No products found.</p>';
+          return;
+        }
+        allProducts = Object.entries(snap.val()).map(([id, p]) => ({ id, ...p }));
+        renderFilteredProducts();
+      } catch (err) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.5;">Error loading products.</p>';
+      }
+    }
+
+    function renderFilteredProducts() {
+      const grid = document.getElementById('product-grid');
+      const searchTerm = document.getElementById('search-input').value.toLowerCase();
+      const sortBy = document.getElementById('sort-select').value;
+      const fabF = document.getElementById('fabric-filter').value;
+      const neckF = document.getElementById('neck-filter').value;
+      const fastF = document.getElementById('fastener-filter').value;
+      const minP = parseFloat(document.getElementById('min-price').value) || 0;
+      const maxP = parseFloat(document.getElementById('max-price').value) || Infinity;
+
+      let filtered = allProducts.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(searchTerm) || p.category.toLowerCase().includes(searchTerm);
+        const matchesFabric = fabF === 'all' || p.fabric === fabF;
+        const matchesNeck = neckF === 'all' || p.neck === neckF;
+        const matchesFast = fastF === 'all' || p.fastenerType === fastF;
+        const finalPrice = parseFloat(p.discountPrice || p.price);
+        const matchesPrice = finalPrice >= minP && finalPrice <= maxP;
+        return matchesSearch && matchesFabric && matchesNeck && matchesFast && matchesPrice;
+      });
+
+      // Sorting
+      if (sortBy === 'price-low') filtered.sort((a,b) => (a.discountPrice||a.price) - (b.discountPrice||b.price));
+      else if (sortBy === 'price-high') filtered.sort((a,b) => (b.discountPrice||b.price) - (a.discountPrice||a.price));
+      else filtered.reverse(); // Default: Latest (Assuming entries follow push order)
+
+      grid.innerHTML = '';
+      filtered.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        const priceHTML = p.discountPrice 
+          ? `<span class="price-old">₹${parseFloat(p.price).toFixed(2)}</span><span class="price-new">₹${parseFloat(p.discountPrice).toFixed(2)}</span>`
+          : `<span class="price-new">₹${parseFloat(p.price).toFixed(2)}</span>`;
+        const thumbUrl = p.media?.[0]?.url || p.images?.[0] || 'https://via.placeholder.com/300';
+        
+        const qtyVal = parseInt(p.quantity);
+        const lowStock = (p.qtyType === 'fixed' && !isNaN(qtyVal) && qtyVal < 15) 
+          ? `<div style="position:absolute; top:12px; right:12px; background:rgba(255,77,77,0.9); color:white; padding:4px 10px; border-radius:8px; font-size:10px; font-weight:800; z-index:5;">ONLY ${qtyVal} REMAINING</div>`
+          : '';
+
+        card.innerHTML = `
+          ${lowStock}
+          <img src="${thumbUrl}" class="product-img">
+          <div class="product-info">
+            <p>${p.category}</p>
+            <h3>${p.name}</h3>
+            <div class="color-dots">${(p.colors || []).map(c => `<div class="color-dot" style="background:${c}"></div>`).join('')}</div>
+          </div>
+          <div class="price-tag">${priceHTML}</div>
+        `;
+        card.onclick = () => openProductDetail(p.id, p);
+        grid.appendChild(card);
+      });
+    }
+
+    // Attach Filter Listeners
+    document.getElementById('search-input').oninput = renderFilteredProducts;
+    document.getElementById('sort-select').onchange = renderFilteredProducts;
+    document.getElementById('fabric-filter').onchange = renderFilteredProducts;
+    document.getElementById('neck-filter').onchange = renderFilteredProducts;
+    document.getElementById('fastener-filter').onchange = renderFilteredProducts;
+    document.getElementById('min-price').oninput = renderFilteredProducts;
+    document.getElementById('max-price').oninput = renderFilteredProducts;
+
+    function openProductDetail(id, p) {
+      currentProduct = { id, ...p };
+      selectedSize = null;
+      selectedColor = null;
+      currentQty = 5;
+      document.getElementById('qty-display').innerText = '5';
+
+      const modal = document.getElementById('product-detail-modal');
+      const firstMediaUrl = p.media?.[0]?.url || p.images?.[0] || '';
+      document.getElementById('modal-main-img').src = firstMediaUrl;
+      document.getElementById('modal-prod-name').innerText = p.name;
+      document.getElementById('modal-fabric-tag').innerText = `Fabric: ${p.fabric}`;
+      document.getElementById('modal-neck-tag').innerText = `Neck: ${p.neck || 'Standard'}`;
+      document.getElementById('modal-fastener-tag').innerText = `Fastener: ${p.fastenerType || 'Plain'}`;
+      document.getElementById('modal-prod-new-price').innerText = `₹${p.discountPrice || p.price}`;
+      document.getElementById('modal-prod-old-price').innerText = p.discountPrice ? `₹${p.price}` : '';
+
+      // Thumbs
+      const thumbs = document.getElementById('modal-media-thumbs');
+      const allMedia = p.media || (p.images || []).map(img => ({url: img, type: 'image'}));
+      
+      thumbs.innerHTML = allMedia.map((m, i) => `
+        <img src="${m.url}" style="width:80px; height:80px; border-radius:12px; cursor:pointer; object-fit:cover; opacity:${i===0?'1':'0.6'}; border:${i===0?'2px solid #72a5b8':'none'};" 
+          onclick="document.getElementById('modal-main-img').src='${m.url}'; Array.from(this.parentElement.children).forEach(t=>{t.style.opacity='0.6'; t.style.border='none'}); this.style.opacity='1'; this.style.border='2px solid #72a5b8';">
+      `).join('');
+
+      // Sizes
+      const sizes = document.getElementById('modal-prod-sizes');
+      sizes.innerHTML = '';
+      (p.sizes || []).forEach(s => {
+        const btn = document.createElement('div');
+        btn.className = 'size-btn';
+        btn.style.cssText = 'padding:10px 20px; border:1px solid #ddd; border-radius:12px; cursor:pointer; font-weight:600; transition:0.3s; color:#1f150f;';
+        btn.innerText = s;
+        btn.onclick = () => {
+          selectedSize = s;
+          Array.from(sizes.children).forEach(b => {
+            b.style.background = 'white';
+            b.style.color = '#1f150f';
+          });
+          btn.style.background = '#1f150f';
+          btn.style.color = 'white';
+          
+          const min = checkMinQty();
+          if (currentQty < min) {
+            currentQty = min;
+            document.getElementById('qty-display').innerText = currentQty;
+          }
+        };
+        sizes.appendChild(btn);
+      });
+
+      // Colors
+      const colors = document.getElementById('modal-prod-colors');
+      colors.innerHTML = '';
+      (p.colors || []).forEach(c => {
+        const opt = document.createElement('div');
+        opt.className = 'color-option';
+        opt.style.cssText = 'width:32px; height:32px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:2px;';
+        opt.innerHTML = `<div style="width:100%; height:100%; border-radius:50%; background:${c}"></div>`;
+        opt.onclick = () => {
+          selectedColor = c;
+          Array.from(colors.children).forEach(b => b.style.borderColor = 'transparent');
+          opt.style.borderColor = '#1f150f';
+          
+          const min = checkMinQty();
+          if (currentQty < min) {
+            currentQty = min;
+            document.getElementById('qty-display').innerText = currentQty;
+          }
+        };
+        colors.appendChild(opt);
+      });
+
+      // Fasteners selection removed as per request (now static)
+      modal.style.display = 'flex';
+    }
+
+    document.getElementById('qty-inc').onclick = () => { currentQty++; document.getElementById('qty-display').innerText = currentQty; };
+    document.getElementById('qty-dec').onclick = () => { 
+      const min = checkMinQty();
+      if(currentQty > min) { currentQty--; document.getElementById('qty-display').innerText = currentQty; } 
+    };
+
+    document.getElementById('add-prod-to-cart').onclick = async (e) => {
+      if (!currentUser) { showToast('Please login to add to cart', 'error'); return; }
+      if (!selectedSize || !selectedColor) { showToast('Please select size and color', 'error'); return; }
+
+      // Flying Animation
+      const btn = e.target;
+      const btnRect = btn.getBoundingClientRect();
+      const cartBtn = document.querySelector('a[href="cart.html"]');
+      if (cartBtn) {
+        const cartRect = cartBtn.getBoundingClientRect();
+        const fly = document.createElement('div');
+        fly.className = 'flying-qty';
+        fly.innerText = `+${currentQty}`;
+        fly.style.setProperty('--start-x', `${btnRect.left + btnRect.width/2}px`);
+        fly.style.setProperty('--start-y', `${btnRect.top}px`);
+        fly.style.setProperty('--end-x', `${cartRect.left + cartRect.width/2}px`);
+        fly.style.setProperty('--end-y', `${cartRect.top}px`);
+        document.body.appendChild(fly);
+        setTimeout(() => fly.remove(), 800);
+      }
+
+      try {
+        // Find existing item for merging
+        let existingKey = null;
+        for (const key in userCart) {
+          const item = userCart[key];
+          if (item.productId === currentProduct.id && item.size === selectedSize && item.color === selectedColor) {
+            existingKey = key;
+            break;
+          }
+        }
+
+        if (existingKey) {
+          const newQty = userCart[existingKey].quantity + currentQty;
+          await update(ref(rtdb, `carts/${currentUser.uid}/${existingKey}`), { quantity: newQty });
+        } else {
+          const cartItem = {
+            productId: currentProduct.id,
+            name: currentProduct.name,
+            originalPrice: currentProduct.price,
+            price: currentProduct.discountPrice || currentProduct.price,
+            size: selectedSize,
+            color: selectedColor,
+            neck: currentProduct.neck || 'Standard',
+            fastener: currentProduct.fastenerType || 'Plain',
+            quantity: currentQty,
+            image: currentProduct.media?.[0]?.url || currentProduct.images?.[0] || '',
+            addedAt: Date.now()
+          };
+          await push(ref(rtdb, `carts/${currentUser.uid}`), cartItem);
+        }
+        
+        setTimeout(() => document.getElementById('product-detail-modal').style.display = 'none', 500);
+      } catch (err) {
+        showToast('Failed to add to cart', 'error');
+      }
+    };
+
+    document.getElementById('close-detail-modal').onclick = () => document.getElementById('product-detail-modal').style.display = 'none';
+    window.onclick = (e) => { if (e.target.id === 'product-detail-modal') document.getElementById('product-detail-modal').style.display = 'none'; };
+
+    loadProducts();
+
+    // ── Handle Auto Scroll from other pages ──
+    window.addEventListener('load', () => {
+      if (window.location.hash === '#products-section') {
+        const target = document.getElementById('products-section');
+        if (target) {
+          setTimeout(() => {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }, 500);
+        }
+      }
+    });
+  </script>
 </body>
 </html>

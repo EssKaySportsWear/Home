@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders - EssKay Sportswear</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script type="module" src="navbar-complete.js"></script>
+  <style>
+    :root {
+      --bg: #F3E3D0;
+      --accent: #72a5b8;
+      --text: #1f150f;
+      --content-width: min(1240px, calc(100% - 32px));
+    }
+    body {
+      margin: 0;
+      font-family: "Sora", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 18px;
+      z-index: 1000;
+      width: var(--content-width);
+      margin: 18px auto 0;
+      padding: 14px 18px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .nav-links { display: flex; align-items: center; gap: 8px; }
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: 999px;
+      color: #000000;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .nav-link.active { background: #AACDDC; color: #1f150f; font-weight: 700; }
+    button.nav-link {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      padding: 0 18px;
+    }
+
+    .orders-container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
+    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 48px; margin-bottom: 40px; }
+
+    .order-card {
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .order-card:hover { transform: translateY(-4px); }
+    
+    .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .order-id { font-weight: 800; font-size: 18px; }
+    .order-date { font-size: 13px; opacity: 0.5; }
+    
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .status-pending { background: #fffae6; color: #d4a017; }
+    .status-processing { background: #e6f7ff; color: #1890ff; }
+    .status-shipped { background: #f6ffed; color: #52c41a; }
+
+    .order-items { border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px; }
+    .item-row { display: flex; gap: 16px; margin-bottom: 12px; align-items: center; }
+    .item-thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; }
+
+    .empty-state { text-align: center; padding: 80px 0; }
+    .empty-state h2 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; opacity: 0.3; }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav">
+    <div class="nav-links">
+      <a class="nav-link" href="index.html"><img class="nav-icon" src="homen.png" data-normal="homen.png" data-active="homef.png" style="width:20px;height:20px;margin-right:8px;">Home</a>
+      <a class="nav-link" href="index.html#products-section"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" style="width:20px;height:20px;margin-right:8px;">Products</a>
+      <a class="nav-link" href="cart.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" style="width:20px;height:20px;margin-right:8px;">Cart</a>
+      <a class="nav-link active" href="orders.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" style="width:20px;height:20px;margin-right:8px;">My Orders</a>
+      <a class="nav-link auth-nav-btn" href="login.html"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
+      <button class="nav-link user-nav-btn" id="nav-user-btn" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
+    </div>
+  </nav>
+
+  <div class="orders-container">
+    <h1 class="page-title">Your Orders</h1>
+    <div id="orders-list">
+      <p style="text-align: center; opacity: 0.5;">Loading your orders...</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, rtdb } from './firebase.js';
+    import { ref, onValue, query, orderByChild, equalTo } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      loadUserOrders(user);
+    });
+
+    function loadUserOrders(user) {
+      const list = document.getElementById('orders-list');
+      const allOrders = new Map();
+
+      // Load Custom Orders
+      const customRef = ref(rtdb, 'customOrders');
+      const qCustom = query(customRef, orderByChild('userId'), equalTo(user.uid));
+      
+      // Load Standard Orders
+      const stdRef = ref(rtdb, 'standardOrders');
+      const qStd = query(stdRef, orderByChild('userId'), equalTo(user.uid));
+
+      onValue(qCustom, (snap) => {
+        // Clear previous custom orders from map to avoid ghosts
+        for (const [key, val] of allOrders.entries()) {
+          if (val.type === 'Custom') allOrders.delete(key);
+        }
+        snap.forEach(child => {
+          allOrders.set(child.key, { id: child.key, type: 'Custom', ...child.val() });
+        });
+        renderAll();
+      }, (err) => {
+        console.error("Custom Orders Error:", err);
+        list.innerHTML = `<div class="empty-state"><h2>Error loading custom orders. Check rules/indexes.</h2></div>`;
+      });
+
+      onValue(qStd, (snap) => {
+        // Clear previous standard orders from map to avoid ghosts
+        for (const [key, val] of allOrders.entries()) {
+          if (val.type === 'Standard') allOrders.delete(key);
+        }
+        snap.forEach(child => {
+          allOrders.set(child.key, { id: child.key, type: 'Standard', ...child.val() });
+        });
+        renderAll();
+      }, (err) => {
+        console.error("Standard Orders Error:", err);
+        list.innerHTML = `<div class="empty-state"><h2>Error loading standard orders. Check rules/indexes.</h2></div>`;
+      });
+
+      function renderAll() {
+        const sortedOrders = Array.from(allOrders.values()).sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+        
+        if (sortedOrders.length === 0) {
+          list.innerHTML = `<div class="empty-state"><h2>No orders found</h2></div>`;
+          return;
+        }
+
+        list.innerHTML = sortedOrders.map(order => {
+          const isPending = (order.status || 'Pending').toLowerCase() === 'pending';
+          const price = order.price || order.totalAmount || 0;
+          const total = parseFloat(price) * 1.05;
+
+          return `
+            <div class="order-card">
+              <div class="order-header">
+                <div>
+                  <div class="order-id">${order.type} Order #${order.id.slice(-6).toUpperCase()}</div>
+                  <div class="order-date">${new Date(order.timestamp).toLocaleDateString()}</div>
+                </div>
+                <span class="status-badge status-${(order.status || 'pending').toLowerCase()}">${order.status || 'Pending'}</span>
+              </div>
+              <div class="order-items">
+                ${order.type === 'Custom' ? `
+                  <div class="item-row">
+                    <img src="${order.frontImage || 'https://via.placeholder.com/50'}" class="item-thumb">
+                    <div>
+                      <div style="font-weight:700;">Custom ${order.type}</div>
+                      <div style="font-size:12px; opacity:0.6;">Size: ${order.size} | Qty: ${order.quantity}</div>
+                      <div style="font-size:12px; opacity:0.6;">Neck: ${order.neck} | Fastener: ${order.fastener}</div>
+                    </div>
+                  </div>
+                ` : `
+                  ${order.items.map(item => `
+                    <div class="item-row">
+                      <div style="font-weight:700;">${item.name} (x${item.quantity})</div>
+                    </div>
+                  `).join('')}
+                `}
+              </div>
+              <div style="margin-top:20px; padding-top:20px; border-top:1px solid rgba(0,0,0,0.05); display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  ${price > 0 ? `
+                    <div style="font-size:12px; opacity:0.5;">Base Price: ₹${price.toFixed(2)}</div>
+                    <div style="font-weight:800; font-size:18px;">Total (+5% GST): ₹${total.toFixed(2)}</div>
+                  ` : `
+                    <div style="font-weight:700; color:var(--accent);">Price to be quoted</div>
+                  `}
+                </div>
+                ${isPending ? `
+                  <button class="action-btn" onclick="window.cancelOrder('${order.id}', '${order.type}')" style="background:#ff4d4d; color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-size:12px;">Cancel Order</button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    window.cancelOrder = async (id, type) => {
+      if (confirm('Are you sure you want to cancel this order?')) {
+        const path = type === 'Custom' ? `customOrders/${id}` : `standardOrders/${id}`;
+        await remove(ref(rtdb, path));
+        alert('Order cancelled successfully');
+        location.reload();
+      }
+    };
+  </script>
+</body>
+</html>

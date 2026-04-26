@@ -5,6 +5,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     const homeSection    = document.getElementById('home-section');
     const productsSection = document.getElementById('products-section');
+    const customPopup     = document.getElementById('customPopup');
     if (!homeSection || !productsSection) return;
 
     const navLinks     = document.querySelectorAll('.nav-link');
@@ -55,7 +56,7 @@
     // ── Wheel snap ───────────────────────────────────────────────
 
     window.addEventListener('wheel', (e) => {
-      if (isSnapping) { e.preventDefault(); return; }
+      if (isSnapping || (customPopup && customPopup.classList.contains('open'))) return;
 
       // Ignore tiny accidental flicks
       if (Math.abs(e.deltaY) < 4) return;
@@ -87,7 +88,7 @@
     }, { passive: true });
 
     window.addEventListener('touchmove', (e) => {
-      if (isSnapping || touchHandled) return;
+      if (isSnapping || touchHandled || (customPopup && customPopup.classList.contains('open'))) return;
 
       const deltaY = touchStartY - e.touches[0].clientY; // positive = swipe up
 
@@ -103,6 +104,36 @@
         }
       }
     }, { passive: false });
+
+    // ── Keyboard snap ──────────────────────────────────────────────
+
+    window.addEventListener('keydown', (e) => {
+      if (isSnapping || (customPopup && customPopup.classList.contains('open'))) return;
+
+      // Ignore if user is typing in an input/textarea/select
+      const activeEl = document.activeElement.tagName.toLowerCase();
+      if (activeEl === 'input' || activeEl === 'textarea' || activeEl === 'select') return;
+
+      const key = e.key;
+
+      if (currentSection === 'home' && (key === 'ArrowDown' || key === 'PageDown' || (key === ' ' && !e.shiftKey))) {
+        e.preventDefault();
+        snapTo('products');
+      } else if (currentSection === 'products' && (key === 'ArrowUp' || key === 'PageUp' || (key === ' ' && e.shiftKey))) {
+        const productsTop = productsSection.getBoundingClientRect().top;
+        // Only snap to home if we are at the top of products
+        if (productsTop >= -10) {
+          e.preventDefault();
+          snapTo('home');
+        }
+      } else if (key === 'Home') {
+        e.preventDefault();
+        snapTo('home');
+      } else if (key === 'End') {
+        e.preventDefault();
+        snapTo('products');
+      }
+    });
 
     // ── Nav click overrides ──────────────────────────────────────
     // Capture phase so we intercept BEFORE navbar-complete.js navigates

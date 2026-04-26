@@ -111,6 +111,130 @@
       font-weight: 600;
       font-size: 14px;
     }
+
+    /* ── Admin Sub-Nav ── */
+    .admin-nav {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px;
+      border-radius: 16px;
+      width: fit-content;
+    }
+    .nav-tab {
+      padding: 12px 24px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      color: var(--text);
+      opacity: 0.6;
+    }
+    .nav-tab.active {
+      background: white;
+      color: var(--accent);
+      opacity: 1;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Premium Form Styling ── */
+    .custom-form label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 10px;
+      opacity: 0.7;
+      color: #1f150f;
+    }
+    .custom-form input[type="text"],
+    .custom-form input[type="number"],
+    .custom-form select,
+    .custom-form textarea {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: rgba(255,255,255,0.8);
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      color: #1f150f;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-sizing: border-box;
+      outline: none;
+    }
+    .custom-form input:focus, 
+    .custom-form select:focus {
+      border-color: var(--accent);
+      background: white;
+      box-shadow: 0 10px 30px rgba(114, 165, 184, 0.15);
+      transform: translateY(-2px);
+    }
+    .custom-form .form-group {
+      margin-bottom: 10px;
+    }
+    .custom-form .full-width {
+      grid-column: span 2;
+    }
+    .submit-btn {
+      background: #1f150f;
+      color: white;
+      padding: 18px;
+      border: none;
+      border-radius: 16px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+    .submit-btn:hover {
+      background: var(--accent);
+      transform: scale(1.02);
+      box-shadow: 0 20px 40px rgba(114, 165, 184, 0.3);
+    }
+    .submit-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .color-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .remove-color {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
   </style>
 </head>
 <body>
@@ -118,34 +242,252 @@
     <a href="index.html" class="back-home">← Back to Website</a>
     <h1>Admin Control Panel</h1>
 
-    <div class="glass-card">
-      <input type="text" id="userSearch" class="search-box" placeholder="Search by name or email...">
-      
-      <div class="table-container">
-        <div id="loading">Loading user database...</div>
-        <table id="userTable" style="display: none;">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Status</th>
-              <th>Joined</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="userList"></tbody>
-        </table>
+    <div class="admin-nav">
+      <div class="nav-tab active" data-tab="users">Users Database</div>
+      <div class="nav-tab" data-tab="normal-orders">Normal Orders</div>
+      <div class="nav-tab" data-tab="orders">Custom Orders</div>
+      <div class="nav-tab" data-tab="products-tab">Products Database</div>
+    </div>
+
+    <!-- Users Tab -->
+    <div id="users" class="tab-content active">
+      <div class="glass-card">
+        <input type="text" id="userSearch" class="search-box" placeholder="Search by name or email...">
+        <div class="table-container">
+          <div id="loading">Loading user database...</div>
+          <table id="userTable" style="display: none;">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="userList"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Normal Orders Tab -->
+    <div id="normal-orders" class="tab-content">
+      <div class="glass-card">
+        <div class="table-container">
+          <div id="loading-normal-orders">Loading normal orders...</div>
+          <table id="normalOrdersTable" style="display: none;">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Items</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="normalOrdersList"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Orders Tab -->
+    <div id="orders" class="tab-content">
+      <div class="glass-card">
+        <div class="table-container">
+          <div id="loading-orders">Loading custom orders...</div>
+          <table id="ordersTable" style="display: none;">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Product</th>
+                <th>Details</th>
+                <th>Images</th>
+                <th>Set Price (GST 5%)</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersList"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Tab -->
+    <div id="products-tab" class="tab-content">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+        <button class="action-btn btn-enable" id="btn-create-product" style="padding: 12px 24px; font-size: 14px;">+ Create New Product</button>
+      </div>
+      <div class="glass-card">
+        <div class="table-container">
+          <div id="loading-products">Loading product database...</div>
+          <table id="productsTable" style="display: none;">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Details</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productList"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Product Modal -->
+  <div id="product-modal-overlay" style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px;">
+    <div class="glass-card" style="width: 100%; max-width: 750px; max-height: 90vh; overflow-y: auto; background: rgba(255, 255, 255, 0.95); padding: 48px; position: relative; border-radius: 32px; box-shadow: 0 40px 100px rgba(0,0,0,0.15);">
+      <button id="close-product-modal" style="position: absolute; top: 24px; right: 24px; background: rgba(0,0,0,0.05); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s;">&times;</button>
+      <h2 style="font-family: 'Bebas Neue', sans-serif; font-size: 40px; margin-bottom: 32px; letter-spacing: 1px; color: #1f150f;">Add New Product</h2>
+      
+      <form id="productForm" class="custom-form" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <div class="form-group">
+          <label>Category</label>
+          <input type="text" value="Clothes" disabled style="background: rgba(0,0,0,0.03); font-weight: 600; color: #72a5b8;">
+          <input type="hidden" name="category" value="Clothes">
+        </div>
+        <div class="form-group">
+          <label>Product Name</label>
+          <input type="text" name="name" placeholder="Enter product name" required>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Available Sizes</label>
+          <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; background: rgba(0,0,0,0.02); padding: 16px; border-radius: 16px;">
+            <label class="size-label"><input type="checkbox" name="sizes" value="22"> 22</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="24"> 24</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="26"> 26</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="28"> 28</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="30"> 30</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="32"> 32</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="34"> 34</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="36"> 36</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="38"> 38</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="40"> 40</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="42"> 42</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="44"> 44</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="46"> 46</label>
+            <label class="size-label"><input type="checkbox" name="sizes" value="48"> 48</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Fabric</label>
+          <select name="fabric" required>
+            <option value="Sarina">Sarina</option>
+            <option value="Micro">Micro</option>
+            <option value="DonKnit">DonKnit</option>
+            <option value="Reeboknit">Reeboknit</option>
+            <option value="Cotton">Cotton</option>
+            <option value="Pc matti">Pc matti</option>
+            <option value="Spun Matti">Spun Matti</option>
+            <option value="Hanycommatti">Hanycommatti</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Color Palette</label>
+          <div id="color-palette" style="display: flex; flex-wrap: wrap; gap: 10px; min-height: 40px; align-items: center; background: rgba(0,0,0,0.02); padding: 8px 12px; border-radius: 12px;">
+            <button type="button" id="add-color" style="width: 32px; height: 32px; border-radius: 50%; border: 2px dashed #72a5b8; color: #72a5b8; background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;">+</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Quantity Status</label>
+          <div style="display: flex; gap: 12px;">
+            <select id="qty-type" name="qtyType" style="flex: 1;">
+              <option value="unlimited" selected>Unlimited</option>
+              <option value="fixed">Fixed Quantity</option>
+            </select>
+            <input type="number" id="qty-value" name="quantity" placeholder="No." style="width: 80px; display: none;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Base Price</label>
+          <div style="position: relative; display: flex; align-items: center;">
+            <span style="position: absolute; left: 14px; font-weight: 600; opacity: 0.6;">₹</span>
+            <input type="number" name="price" required style="padding-left: 32px; width: 100%;">
+          </div>
+        </div>
+
+        <div class="form-group full-width" style="background: rgba(114, 165, 184, 0.05); padding: 16px; border-radius: 16px;">
+          <label style="display: flex; align-items: center; gap: 12px; text-transform: none; cursor: pointer; font-weight: 600;">
+            <input type="checkbox" id="has-discount" style="width: 18px; height: 18px;"> Enable Discounted Price?
+          </label>
+          <div id="discount-group" style="display: none; margin-top: 12px; position: relative; animation: fadeIn 0.3s ease;">
+            <span style="position: absolute; left: 14px; top: 12px; font-weight: 600; opacity: 0.6;">₹</span>
+            <input type="number" name="discountPrice" placeholder="Offer Price" style="padding-left: 32px; width: 100%;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Neck</label>
+          <select name="neck">
+            <option value="collar">Collar</option>
+            <option value="v shape">V Shape</option>
+            <option value="u shape">U Shape</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Fastener</label>
+          <select id="fastener-type" name="fastenerType">
+            <option value="zip">Zip</option>
+            <option value="half zip">Half Zip</option>
+            <option value="plain">Plain</option>
+            <option value="buttons">Buttons</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Product Media</label>
+          <div class="upload-box" style="height: 100px; border-width: 2px; border-style: dashed; border-color: rgba(0,0,0,0.1); border-radius: 16px; display: flex; flex-direction: column; gap: 4px; justify-content: center; align-items: center; cursor: pointer;" onclick="document.getElementById('productImages').click()">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
+            <span style="font-size: 13px; opacity: 0.6;">Click to upload images</span>
+            <input type="file" id="productImages" multiple accept="image/*,video/*" style="display: none;">
+          </div>
+          <div id="image-previews" style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;"></div>
+        </div>
+
+        <button type="submit" class="submit-btn full-width" id="saveProductBtn" style="height: 56px; font-size: 18px;">Publish Product</button>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    .size-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .size-label input { width: 16px; height: 16px; }
+  </style>
+
   <script type="module">
     import { auth, rtdb } from './firebase.js';
     import { onAuthStateChanged, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-    import { ref, get, update, remove } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
-    import { showToast, showConfirm, showPrompt } from './toast-system.js';
+    import { ref, get, update, remove, push } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+    import { showToast, showConfirm, showPrompt, updateToast } from './toast-system.js';
 
     const ADMIN_EMAIL = 'business.esskaysportswear@gmail.com';
+    let editingProductId = null;
+    let selectedMediaFiles = [];
+    let existingMedia = [];
+
+    // Global UI references
+    let colorPalette, addColorBtn, mediaInput, mediaPreviews, productForm, fastenerType, subOptions;
 
     onAuthStateChanged(auth, async (user) => {
       if (!user || user.email !== ADMIN_EMAIL) {
@@ -154,7 +496,28 @@
         return;
       }
       loadUsers();
+      loadOrders();
+      loadProducts();
+      initTabs();
+      initProductModal();
     });
+
+    function initTabs() {
+      const tabs = document.querySelectorAll('.nav-tab');
+      const contents = document.querySelectorAll('.tab-content');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const target = tab.dataset.tab;
+          
+          tabs.forEach(t => t.classList.remove('active'));
+          contents.forEach(c => c.classList.remove('active'));
+
+          tab.classList.add('active');
+          document.getElementById(target).classList.add('active');
+        });
+      });
+    }
 
     async function loadUsers() {
       const usersRef = ref(rtdb, 'users');
@@ -258,7 +621,7 @@
     }
 
     // Simple Search Logic
-    document.getElementById('userSearch').addEventListener('input', (e) => {
+    document.getElementById('userSearch')?.addEventListener('input', (e) => {
       const val = e.target.value.toLowerCase();
       const rows = document.querySelectorAll('#userList tr');
       rows.forEach(row => {
@@ -266,6 +629,400 @@
         row.style.display = text.includes(val) ? '' : 'none';
       });
     });
+
+    async function loadOrders() {
+      const ordersRef = ref(rtdb, 'customOrders');
+      try {
+        const snapshot = await get(ordersRef);
+        document.getElementById('loading-orders').style.display = 'none';
+        document.getElementById('ordersTable').style.display = 'table';
+        if (snapshot.exists()) {
+          renderOrders(snapshot.val());
+        } else {
+          document.getElementById('loading-orders').innerText = 'No custom orders found.';
+          document.getElementById('loading-orders').style.display = 'block';
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Error loading orders.', 'error');
+      }
+    }
+
+    function renderOrders(ordersData) {
+      const list = document.getElementById('ordersList');
+      list.innerHTML = '';
+      Object.keys(ordersData).reverse().forEach(id => {
+        const order = ordersData[id];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <strong>${order.userEmail}</strong><br>
+            <span style="font-size:11px;opacity:0.6;">UID: ${order.userId}</span>
+          </td>
+          <td>
+            <strong>${order.type}</strong><br>
+            ${order.fabric} | Size: ${order.size}
+          </td>
+          <td>
+            Qty: ${order.quantity}<br>
+            <span style="font-size:11px;">Addr: ${order.address}</span>
+          </td>
+          <td>
+            <div style="display:flex;gap:4px;">
+              <a href="${order.frontImage}" target="_blank"><img src="${order.frontImage}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;"></a>
+              <a href="${order.backImage}" target="_blank"><img src="${order.backImage}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;"></a>
+            </div>
+          </td>
+          <td>
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <div style="position:relative;">
+                <span style="position:absolute; left:6px; top:8px; font-size:10px; opacity:0.5;">₹</span>
+                <input type="number" class="price-input" data-id="${id}" value="${order.price || ''}" placeholder="Set Base" style="padding:8px 8px 8px 16px; width:100px; border-radius:8px; border:1px solid rgba(0,0,0,0.1); font-size:13px; font-weight:600;">
+              </div>
+              <span style="font-size:10px; opacity:0.6; padding-left:4px;">Total (+5% GST): <strong>₹${((order.price || 0) * 1.05).toFixed(2)}</strong></span>
+              <button class="action-btn btn-enable save-price" data-id="${id}" style="padding:4px; font-size:10px; height:auto; margin-top:2px;">Save Price</button>
+            </div>
+          </td>
+          <td>
+            <select class="status-select" data-id="${id}" style="padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.1);font-family:inherit;font-size:12px;background:white;">
+              <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="Confirmed" ${order.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+              <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+              <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+              <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+            </select>
+          </td>
+          <td>
+            <button class="action-btn btn-delete delete-order" data-id="${id}">Delete</button>
+          </td>
+        `;
+        list.appendChild(tr);
+      });
+
+      // Attach listeners
+      document.querySelectorAll('.save-price').forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.dataset.id;
+          const input = document.querySelector(`.price-input[data-id="${id}"]`);
+          const price = parseFloat(input.value);
+          if (isNaN(price)) return showToast('Enter a valid price', 'error');
+          
+          const toast = showToast('Saving price...', 'loading');
+          await update(ref(rtdb, `customOrders/${id}`), { price: price });
+          updateToast(toast, 'Price saved!', 'success');
+        };
+      });
+
+      document.querySelectorAll('.status-select').forEach(select => {
+        select.addEventListener('change', async (e) => {
+          const id = e.target.dataset.id;
+          const newStatus = e.target.value;
+          const toast = showToast('Updating status...', 'loading');
+          await update(ref(rtdb, `customOrders/${id}`), { status: newStatus });
+          updateToast(toast, 'Status updated!', 'success');
+        });
+      });
+
+      // Attach delete order listener
+      document.querySelectorAll('.delete-order').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.target.dataset.id;
+          if (await showConfirm('Delete this order permanently?', 'Delete Order')) {
+            showToast('Deleting order...', 'loading');
+            await remove(ref(rtdb, `customOrders/${id}`));
+            showToast('Order deleted.', 'success');
+            setTimeout(() => location.reload(), 1000);
+          }
+        });
+      });
+    }
+
+    // Fastener sub-options removed as per request
+
+    function addColorToPalette(value = '#000000') {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'color-item';
+      wrapper.innerHTML = `
+        <input type="color" name="productColors" value="${value}" style="width:34px; height:34px; border:none; border-radius:50%; cursor:pointer; background:none; padding:0;">
+        <button type="button" class="remove-color" onclick="this.parentElement.remove()">&times;</button>
+      `;
+      colorPalette.appendChild(wrapper);
+    }
+
+    function renderMediaPreview(mediaObj, index, isExisting = false, fileObj = null) {
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = 'position:relative; width:80px; height:80px;';
+      
+      const isVideo = mediaObj.type === 'video';
+      const url = mediaObj.url || (typeof mediaObj === 'string' ? mediaObj : '');
+      
+      let el;
+      if (isVideo) {
+        el = document.createElement('video');
+        el.src = url;
+        el.style.cssText = 'width:100%; height:100%; object-fit:cover; border-radius:12px; background:black;';
+      } else {
+        el = document.createElement('img');
+        el.src = url;
+        el.style.cssText = 'width:100%; height:100%; object-fit:cover; border-radius:12px; border:1px solid rgba(0,0,0,0.1);';
+      }
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.innerHTML = '&times;';
+      removeBtn.style.cssText = 'position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; background:#ff4d4d; color:white; border:none; cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center; z-index:5; box-shadow:0 2px 4px rgba(0,0,0,0.2);';
+      removeBtn.onclick = () => {
+        wrapper.remove();
+        if (isExisting) {
+          existingMedia = existingMedia.filter((m, i) => i !== index);
+        } else {
+          selectedMediaFiles = selectedMediaFiles.filter(f => f !== fileObj);
+        }
+      };
+
+      wrapper.appendChild(el);
+      wrapper.appendChild(removeBtn);
+      mediaPreviews.appendChild(wrapper);
+    }
+
+    function initProductModal() {
+      const modal = document.getElementById('product-modal-overlay');
+      const openBtn = document.getElementById('btn-create-product');
+      const closeBtn = document.getElementById('close-product-modal');
+      productForm = document.getElementById('productForm');
+      
+      colorPalette = document.getElementById('color-palette');
+      addColorBtn = document.getElementById('add-color');
+      mediaInput = document.getElementById('productImages');
+      mediaPreviews = document.getElementById('image-previews');
+
+      const qtyType = document.getElementById('qty-type');
+      const qtyValue = document.getElementById('qty-value');
+      const hasDiscount = document.getElementById('has-discount');
+      const discountGroup = document.getElementById('discount-group');
+      fastenerType = document.getElementById('fastener-type');
+      subOptions = document.getElementById('fastener-suboptions');
+
+      openBtn?.addEventListener('click', () => {
+        editingProductId = null;
+        productForm.reset();
+        document.querySelector('#product-modal-overlay h2').innerText = 'Add New Product';
+        document.getElementById('saveProductBtn').innerText = 'Publish Product';
+        
+        colorPalette.innerHTML = '';
+        colorPalette.appendChild(addColorBtn);
+        mediaPreviews.innerHTML = '';
+        selectedMediaFiles = [];
+        existingMedia = [];
+        
+        modal.style.display = 'flex';
+        updateFastenerOptions();
+      });
+      closeBtn?.addEventListener('click', () => modal.style.display = 'none');
+
+      qtyType?.addEventListener('change', () => {
+        qtyValue.style.display = qtyType.value === 'fixed' ? 'block' : 'none';
+      });
+
+      hasDiscount?.addEventListener('change', () => {
+        discountGroup.style.display = hasDiscount.checked ? 'block' : 'none';
+      });
+
+      addColorBtn?.addEventListener('click', () => addColorToPalette());
+
+      // Media (Images & Videos) logic
+      mediaInput?.addEventListener('change', () => {
+        const files = Array.from(mediaInput.files);
+        files.forEach(file => {
+          selectedMediaFiles.push(file);
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            renderMediaPreview({ url: e.target.result, type: file.type.startsWith('video') ? 'video' : 'image' }, selectedMediaFiles.length - 1, false, file);
+          };
+          reader.readAsDataURL(file);
+        });
+        mediaInput.value = ''; 
+      });
+
+      // Form Submit
+      productForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const sizes = Array.from(productForm.querySelectorAll('input[name="sizes"]:checked')).map(cb => cb.value);
+        if (sizes.length === 0) return showToast('Please select at least one size.', 'error');
+        if (selectedMediaFiles.length === 0 && existingMedia.length === 0) return showToast('Please upload media.', 'error');
+
+        const toast = showToast('Saving product...', 'loading');
+        const saveBtn = document.getElementById('saveProductBtn');
+        saveBtn.disabled = true;
+
+        try {
+          const uploadedUrls = [];
+          for (let file of selectedMediaFiles) {
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('upload_preset', 'esskay_unsigned');
+            const res = await fetch('https://api.cloudinary.com/v1_1/derbtnk8w/upload', { method: 'POST', body: fd });
+            if (!res.ok) throw new Error('Upload failed');
+            const data = await res.json();
+            uploadedUrls.push({ url: data.secure_url, type: file.type.startsWith('video') ? 'video' : 'image' });
+          }
+
+          const formData = new FormData(productForm);
+          const colors = Array.from(productForm.querySelectorAll('.color-item')).map(item => item.querySelector('input').value);
+
+          if (colors.length === 0) {
+            showToast('Please add at least one color.', 'error');
+            saveBtn.disabled = false;
+            return;
+          }
+
+          if (formData.get('qtyType') === 'fixed' && !formData.get('quantity')) {
+            showToast('Please specify the fixed quantity.', 'error');
+            saveBtn.disabled = false;
+            return;
+          }
+
+          const productData = {
+            category: formData.get('category'),
+            name: formData.get('name'),
+            sizes: sizes,
+            fabric: formData.get('fabric'),
+            colors: colors,
+            qtyType: formData.get('qtyType'),
+            quantity: formData.get('qtyType') === 'fixed' ? formData.get('quantity') : 'unlimited',
+            price: formData.get('price'),
+            discountPrice: document.getElementById('has-discount').checked ? formData.get('discountPrice') : null,
+            fastenerType: formData.get('fastenerType'),
+            neck: formData.get('neck'),
+            media: [...existingMedia, ...uploadedUrls],
+            updatedAt: new Date().toISOString()
+          };
+
+          if (editingProductId) {
+            await update(ref(rtdb, 'products/' + editingProductId), productData);
+            updateToast(toast, 'Product updated!', 'success');
+          } else {
+            productData.createdAt = new Date().toISOString();
+            await update(push(ref(rtdb, 'products')), productData);
+            updateToast(toast, 'Product created!', 'success');
+          }
+
+          productForm.reset();
+          modal.style.display = 'none';
+          loadProducts();
+        } catch (err) {
+          updateToast(toast, 'Error: ' + err.message, 'error');
+        } finally {
+          saveBtn.disabled = false;
+        }
+      });
+    }
+
+    async function loadProducts() {
+      const prodRef = ref(rtdb, 'products');
+      try {
+        const snap = await get(prodRef);
+        document.getElementById('loading-products').style.display = 'none';
+        document.getElementById('productsTable').style.display = 'table';
+        if (snap.exists()) {
+          renderProducts(snap.val());
+        } else {
+          document.getElementById('loading-products').innerText = 'No products found.';
+          document.getElementById('loading-products').style.display = 'block';
+        }
+      } catch (e) {
+        showToast('Error loading products.', 'error');
+      }
+    }
+
+    function renderProducts(productsData) {
+      const list = document.getElementById('productList');
+      list.innerHTML = '';
+      Object.keys(productsData).reverse().forEach(id => {
+        const prod = productsData[id];
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <img src="${prod.media?.[0]?.url || ''}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">
+              <strong>${prod.name}</strong>
+            </div>
+          </td>
+          <td>${prod.category}</td>
+          <td>
+            <span style="font-size:11px;">Fabric: ${prod.fabric}<br>Sizes: ${prod.sizes?.join(', ')}</span>
+          </td>
+          <td>
+            ₹${prod.price}
+            ${prod.discountPrice ? `<br><span style="font-size:10px; color:red; text-decoration:line-through;">₹${prod.price}</span> <strong>₹${prod.discountPrice}</strong>` : ''}
+          </td>
+          <td>${prod.quantity}</td>
+          <td>
+            <button class="action-btn btn-delete delete-prod" data-id="${id}">Delete</button>
+          </td>
+        `;
+        list.appendChild(tr);
+      });
+
+      // Event Delegation for Products
+      list.onclick = async (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        const prod = productsData[id];
+
+        if (btn.classList.contains('edit-prod')) {
+          editingProductId = id;
+          productForm.category.value = prod.category;
+          productForm.name.value = prod.name;
+          productForm.fabric.value = prod.fabric;
+          productForm.qtyType.value = prod.qtyType;
+          productForm.quantity.value = prod.quantity === 'unlimited' ? '' : prod.quantity;
+          document.getElementById('qty-value').style.display = prod.qtyType === 'fixed' ? 'block' : 'none';
+          productForm.price.value = prod.price;
+          
+          const hasDiscount = document.getElementById('has-discount');
+          hasDiscount.checked = !!prod.discountPrice;
+          document.getElementById('discount-group').style.display = hasDiscount.checked ? 'block' : 'none';
+          productForm.discountPrice.value = prod.discountPrice || '';
+          
+          productForm.collar.value = prod.collar;
+          productForm.fastenerType.value = prod.fastenerType;
+          
+          updateFastenerOptions();
+          if (prod.fastenerType === 'zip') {
+            productForm.querySelector('select[name="zipOption"]').value = prod.fastenerValue;
+          } else if (prod.fastenerType === 'buttons') {
+            productForm.querySelector('select[name="buttonsOption"]').value = prod.fastenerValue;
+          }
+
+          form.querySelectorAll('input[name="sizes"]').forEach(cb => {
+            cb.checked = prod.sizes?.includes(cb.value);
+          });
+
+          colorPalette.innerHTML = '';
+          colorPalette.appendChild(addColorBtn);
+          prod.colors?.forEach(color => addColorToPalette(color));
+
+          mediaPreviews.innerHTML = '';
+          existingMedia = prod.media || [];
+          existingMedia.forEach((m, i) => renderMediaPreview(m, i, true));
+
+          document.querySelector('#product-modal-overlay h2').innerText = 'Edit Product';
+          document.getElementById('saveProductBtn').innerText = 'Update Product';
+          document.getElementById('product-modal-overlay').style.display = 'flex';
+        }
+
+        if (btn.classList.contains('delete-prod')) {
+          if (await showConfirm(`Delete "${prod.name}"?`, 'Confirm Delete')) {
+            showToast('Deleting...', 'loading');
+            await remove(ref(rtdb, 'products/' + id));
+            showToast('Deleted', 'success');
+            loadProducts();
+          }
+        }
+      };
+    }
   </script>
 </body>
 </html>
