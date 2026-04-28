@@ -817,6 +817,201 @@
     .submit-btn:not(:disabled):hover {
       background: #3a2a1e;
       transform: translateY(-4px);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+    }
+    .modal-details h2 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; margin: 0 0 10px; color: #1f150f; }
+    .add-cart-btn {
+      flex: 1;
+      height: 60px;
+      background: #1f150f;
+      color: white;
+      border: none;
+      border-radius: 16px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .add-cart-btn:hover { background: #72a5b8; transform: translateY(-2px); }
+
+    /* ── Flying Animation ── */
+    @keyframes flyToCart {
+      0% { transform: scale(1); opacity: 1; top: var(--start-y); left: var(--start-x); }
+      50% { transform: scale(1.5); opacity: 1; }
+      100% { transform: scale(0.2); opacity: 0; top: var(--end-y); left: var(--end-x); }
+    }
+    .flying-qty {
+      position: fixed;
+      background: #72a5b8;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      z-index: 9999;
+      pointer-events: none;
+      animation: flyToCart 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    /* ── Custom Order Form Styles ── */
+    .popup-card {
+      padding: 32px 48px;
+      max-width: 800px;
+      height: auto;
+      max-height: 90vh;
+      color: #1f150f;
+    }
+    .popup-card h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+    .custom-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .full-width {
+      grid-column: span 2;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .form-group label {
+      font-size: 13px;
+      font-weight: 700;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.1);
+      background: rgba(255, 255, 255, 0.4);
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: #72a5b8;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(114, 165, 184, 0.15);
+    }
+    .form-group input:invalid:not(:placeholder-shown) {
+      border-color: #ff4d4d;
+    }
+    .upload-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .upload-box {
+      border: 2px dashed rgba(0,0,0,0.15);
+      border-radius: 20px;
+      height: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .upload-box:hover {
+      border-color: #72a5b8;
+      background: rgba(114, 165, 184, 0.05);
+      transform: translateY(-2px);
+    }
+    .upload-placeholder {
+      font-size: 12px;
+      text-align: center;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .upload-placeholder svg {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+    .image-preview {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      z-index: 2;
+    }
+    .options-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding: 16px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 16px;
+    }
+    .radio-group {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .radio-group label {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      text-transform: none;
+      font-size: 14px;
+    }
+    .submit-btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 16px;
+      border: none;
+      border-radius: 16px;
+      background: #1f150f;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .submit-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    .submit-btn:not(:disabled):hover {
+      background: #3a2a1e;
+      transform: translateY(-4px);
       box-shadow: 0 12px 24px rgba(0,0,0,0.2);
     }
     .submit-btn:active {
@@ -838,14 +1033,13 @@
   <link rel="stylesheet" href="theme.css">
 </head>
 <body class="home-page">
-  <nav class="site-nav">
 
+  <nav class="site-nav">
     <button id="mobile-menu-btn" aria-label="Toggle menu">
       <span></span>
       <span></span>
       <span></span>
     </button>
-
     <div class="nav-links">
       <a class="nav-link active" href="index.html"><img class="nav-icon" src="homef.png" data-normal="homen.png" data-active="homef.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
       <a class="nav-link" href="#products-section"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
@@ -887,6 +1081,7 @@
         </div>
       </div>
     </section>
+
     <section id="products-section">
       <div style="max-width: 1200px; margin: 0 auto 40px; padding: 0 20px;">
         <div style="background: rgba(255,255,255,0.7); padding: 24px; border-radius: 28px; backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.4); display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">

@@ -25,7 +25,6 @@
       overflow-x: hidden;
     }
 
-    /* Navbar Styles copied from index */
     .site-nav {
       position: sticky;
       top: 18px;
@@ -64,7 +63,6 @@
     }
     .nav-link:hover { transform: translateY(-2px); background: rgba(255,255,255,0.2); }
 
-    /* Mobile Menu styles */
     #mobile-menu-btn { display: none; background: none; border: none; padding: 8px; cursor: pointer; }
     button.nav-link {
       background: none;
@@ -95,7 +93,7 @@
     }
     .cart-header { margin-bottom: 48px; }
     .cart-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 64px; margin: 0; letter-spacing: 2px; }
-    
+
     .cart-grid { display: grid; grid-template-columns: 1fr 380px; gap: 40px; }
     @media (max-width: 968px) { .cart-grid { grid-template-columns: 1fr; } }
 
@@ -105,7 +103,9 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
       border-radius: 24px;
       padding: 24px;
-      display: flex; gap: 24px; margin-bottom: 20px;
+      display: flex;
+      gap: 24px;
+      margin-bottom: 20px;
       transition: all 0.3s ease;
     }
     .item-img { width: 120px; height: 120px; border-radius: 16px; object-fit: cover; }
@@ -124,6 +124,110 @@
     .empty-cart { text-align: center; padding: 80px 20px; }
     .empty-cart h2 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; }
     .shop-now { display: inline-block; margin-top: 24px; background: #1f150f; color: white; padding: 16px 40px; border-radius: 14px; text-decoration: none; font-weight: 600; }
+
+    .checkout-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 15, 12, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 2100;
+    }
+    .checkout-modal.open { display: flex; }
+    .checkout-panel {
+      width: min(560px, 100%);
+      background: rgba(255, 250, 244, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      border-radius: 28px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+      padding: 28px;
+      color: var(--text);
+      position: relative;
+    }
+    .checkout-panel h2 {
+      margin: 0 0 8px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px;
+      letter-spacing: 1.5px;
+    }
+    .checkout-panel p {
+      margin: 0 0 24px;
+      opacity: 0.75;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    .checkout-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(31, 21, 15, 0.08);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 22px;
+    }
+    .checkout-form { display: grid; gap: 16px; }
+    .checkout-field { display: grid; gap: 8px; }
+    .checkout-field label { font-size: 13px; font-weight: 700; opacity: 0.8; }
+    .checkout-field input,
+    .checkout-field textarea {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(31, 21, 15, 0.1);
+      background: rgba(255, 255, 255, 0.8);
+      padding: 14px 16px;
+      font: inherit;
+      color: var(--text);
+      outline: none;
+      transition: border-color var(--ease), box-shadow var(--ease);
+      box-sizing: border-box;
+    }
+    .checkout-field textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .checkout-field input:focus,
+    .checkout-field textarea:focus {
+      border-color: #90C1D2;
+      box-shadow: 0 0 0 4px rgba(114, 165, 184, 0.14);
+    }
+    .checkout-note { margin: -4px 0 0; font-size: 12px; opacity: 0.65; }
+    .checkout-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 4px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(31, 21, 15, 0.06);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .checkout-submit {
+      width: 100%;
+      margin-top: 8px;
+      border: none;
+      border-radius: 18px;
+      background: #1f150f;
+      color: white;
+      padding: 16px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 1px;
+      cursor: pointer;
+    }
+    .checkout-submit:disabled { opacity: 0.7; cursor: wait; }
+    @media (max-width: 640px) {
+      .checkout-panel { padding: 22px; border-radius: 24px; }
+      .checkout-meta { flex-direction: column; }
+    }
   </style>
   <link rel="stylesheet" href="theme.css">
 </head>
@@ -138,9 +242,9 @@
       <a class="nav-link" href="index.html#products-section"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
       <a class="nav-link active" href="cart.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Cart" style="width:20px;height:20px;margin-right:8px;">Cart</a>
       <a class="nav-link" href="orders.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Orders" style="width:20px;height:20px;margin-right:8px;">My Orders</a>
-      <a class="nav-link auth-nav-btn" href="login.html"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
-      <button class="nav-link user-nav-btn" id="nav-user-btn" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
-      <a class="nav-link admin-nav-btn" href="admin.html" id="nav-admin-link" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Admin" style="width:20px;height:20px;margin-right:8px;">Admin</a>
+      <a class="nav-link auth-nav-btn" href="login.html" style="display:none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
+      <button class="nav-link user-nav-btn" id="nav-user-btn" style="display:none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
+      <a class="nav-link admin-nav-btn" href="admin.html" id="nav-admin-link" style="display:none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Admin" style="width:20px;height:20px;margin-right:8px;">Admin</a>
     </div>
   </nav>
 
@@ -150,11 +254,51 @@
     </div>
   </div>
 
+  <div class="checkout-modal" id="checkout-modal" aria-hidden="true">
+    <div class="checkout-panel" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
+      <button class="checkout-close" id="checkout-close-btn" type="button" aria-label="Close checkout">&times;</button>
+      <h2 id="checkout-modal-title">Checkout</h2>
+      <p>Confirm your delivery details and place this order with Cash on Delivery.</p>
+      <form class="checkout-form" id="checkout-modal-form">
+        <div class="checkout-field">
+          <label for="checkout-name">Full Name</label>
+          <input type="text" id="checkout-name" required>
+        </div>
+        <div class="checkout-field" id="checkout-phone-wrap" style="display:none;">
+          <label for="checkout-phone">Phone Number</label>
+          <input type="tel" id="checkout-phone" placeholder="10-digit phone number" maxlength="10" inputmode="numeric">
+          <div class="checkout-note">Google sign-in accounts need a phone number before placing the order.</div>
+        </div>
+        <div class="checkout-field">
+          <label for="checkout-address">Delivery Address</label>
+          <textarea id="checkout-address" placeholder="Enter your full address with pincode" required></textarea>
+        </div>
+        <div class="checkout-meta">
+          <span>Payment: COD</span>
+          <span id="checkout-total-label">Total: Rs 0.00</span>
+        </div>
+        <button type="submit" class="checkout-submit" id="checkout-submit-btn">Place Order</button>
+      </form>
+    </div>
+  </div>
+
   <script type="module">
     import { auth, rtdb } from './firebase.js';
     import { ref, get, onValue, push, update, remove } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-    import { showToast, showConfirm } from './toast-system.js';
+    import { showToast, showConfirm, updateToast } from './toast-system.js';
+
+    const checkoutModal = document.getElementById('checkout-modal');
+    const checkoutModalForm = document.getElementById('checkout-modal-form');
+    const checkoutCloseBtn = document.getElementById('checkout-close-btn');
+    const checkoutNameInput = document.getElementById('checkout-name');
+    const checkoutPhoneWrap = document.getElementById('checkout-phone-wrap');
+    const checkoutPhoneInput = document.getElementById('checkout-phone');
+    const checkoutAddressInput = document.getElementById('checkout-address');
+    const checkoutSubmitBtn = document.getElementById('checkout-submit-btn');
+    const checkoutTotalLabel = document.getElementById('checkout-total-label');
+
+    let activeCheckoutContext = null;
 
     onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -168,6 +312,20 @@
       }
       initCart(user);
     });
+
+    checkoutCloseBtn?.addEventListener('click', closeCheckoutModal);
+    checkoutModal?.addEventListener('click', (event) => {
+      if (event.target === checkoutModal) closeCheckoutModal();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && checkoutModal?.classList.contains('open')) {
+        closeCheckoutModal();
+      }
+    });
+    checkoutPhoneInput?.addEventListener('input', () => {
+      checkoutPhoneInput.value = checkoutPhoneInput.value.replace(/\D/g, '').slice(0, 10);
+    });
+    checkoutModalForm?.addEventListener('submit', submitCheckoutModal);
 
     function initCart(user) {
       const cartRef = ref(rtdb, `carts/${user.uid}`);
@@ -189,6 +347,171 @@
       `;
     }
 
+    function openCheckoutModal() {
+      checkoutModal.classList.add('open');
+      checkoutModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        if (!checkoutNameInput.value.trim()) {
+          checkoutNameInput.focus();
+          return;
+        }
+        if (checkoutPhoneWrap.style.display !== 'none') {
+          checkoutPhoneInput.focus();
+          return;
+        }
+        checkoutAddressInput.focus();
+      }, 20);
+    }
+
+    function closeCheckoutModal() {
+      checkoutModal.classList.remove('open');
+      checkoutModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      activeCheckoutContext = null;
+      checkoutModalForm.reset();
+      checkoutPhoneWrap.style.display = 'none';
+      checkoutPhoneInput.required = false;
+      checkoutSubmitBtn.disabled = false;
+      checkoutSubmitBtn.textContent = 'Place Order';
+    }
+
+    async function prepareCheckoutModal(user, cartData) {
+      const items = Object.values(cartData);
+      if (items.length === 0) {
+        showToast('Your bag is empty.', 'error');
+        return;
+      }
+
+      const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const gst = subtotal * 0.05;
+      const total = subtotal + gst;
+      const toast = showToast('Preparing checkout...', 'loading');
+
+      try {
+        const userSnap = await get(ref(rtdb, `users/${user.uid}`));
+        const userData = userSnap.exists() ? userSnap.val() : {};
+
+        if (userData?.orderBlocked === true) {
+          updateToast(toast, 'Orders are blocked for this account. Please contact support.', 'error');
+          return;
+        }
+
+        const isGoogleUser = user.providerData.some((provider) => provider.providerId === 'google.com') || userData?.provider === 'google';
+        const savedPhone = userData?.phone && userData.phone !== 'Not provided' ? userData.phone : '';
+
+        activeCheckoutContext = {
+          user,
+          items,
+          subtotal,
+          gst,
+          total,
+          isGoogleUser,
+          savedPhone
+        };
+
+        checkoutNameInput.value = userData?.name || user.displayName || user.email.split('@')[0] || '';
+        checkoutAddressInput.value = userData?.address || '';
+        checkoutPhoneInput.value = savedPhone;
+        checkoutPhoneWrap.style.display = isGoogleUser ? 'grid' : 'none';
+        checkoutPhoneInput.required = isGoogleUser;
+        checkoutTotalLabel.textContent = `Total: Rs ${total.toFixed(2)}`;
+
+        updateToast(toast, 'Checkout is ready.', 'success');
+        openCheckoutModal();
+      } catch (error) {
+        console.error(error);
+        updateToast(toast, 'Checkout failed: ' + error.message, 'error');
+      }
+    }
+
+    async function submitCheckoutModal(event) {
+      event.preventDefault();
+
+      if (!activeCheckoutContext) {
+        showToast('Checkout session expired. Please try again.', 'error');
+        return;
+      }
+
+      const { user, items, subtotal, gst, total, isGoogleUser, savedPhone } = activeCheckoutContext;
+      const fullName = checkoutNameInput.value.trim();
+      const address = checkoutAddressInput.value.trim();
+      const phone = isGoogleUser ? checkoutPhoneInput.value.trim() : savedPhone;
+
+      if (!fullName) return showToast('Please enter your full name.', 'error');
+      if (isGoogleUser && !/^[16789]\d{9}$/.test(phone)) return showToast('Enter a valid 10-digit phone number.', 'error');
+      if (!address) return showToast('Please enter your delivery address.', 'error');
+
+      checkoutSubmitBtn.disabled = true;
+      const originalText = checkoutSubmitBtn.textContent;
+      checkoutSubmitBtn.textContent = 'Processing...';
+
+      const toast = showToast('Placing your order...', 'loading');
+
+      try {
+        const userSnap = await get(ref(rtdb, `users/${user.uid}`));
+        if (userSnap.exists() && userSnap.val()?.orderBlocked === true) {
+          updateToast(toast, 'Orders are blocked for this account. Please contact support.', 'error');
+          checkoutSubmitBtn.disabled = false;
+          checkoutSubmitBtn.textContent = originalText;
+          return;
+        }
+
+        const orderData = {
+          userId: user.uid,
+          userName: fullName,
+          userEmail: user.email,
+          phone: phone || 'Not provided',
+          address,
+          items,
+          subtotal: subtotal.toFixed(2),
+          gst: gst.toFixed(2),
+          totalAmount: total.toFixed(2),
+          paymentMethod: 'COD',
+          status: 'Pending',
+          timestamp: Date.now()
+        };
+
+        await push(ref(rtdb, 'standardOrders'), orderData);
+
+        for (const item of items) {
+          if (!item.isCustom) {
+            const productRef = ref(rtdb, `products/${item.productId}`);
+            const productSnap = await get(productRef);
+            if (productSnap.exists()) {
+              const product = productSnap.val();
+              if (product.qtyType === 'fixed') {
+                const newStock = Math.max(0, (parseInt(product.quantity, 10) || 0) - item.quantity);
+                await update(productRef, { quantity: newStock });
+              }
+            }
+          }
+        }
+
+        const userUpdate = {
+          name: fullName,
+          address
+        };
+        if (isGoogleUser) {
+          userUpdate.phone = phone;
+        }
+        await update(ref(rtdb, `users/${user.uid}`), userUpdate);
+
+        await remove(ref(rtdb, `carts/${user.uid}`));
+
+        updateToast(toast, 'Order placed successfully!', 'success');
+        closeCheckoutModal();
+        setTimeout(() => {
+          window.location.href = 'orders.html';
+        }, 900);
+      } catch (error) {
+        console.error(error);
+        updateToast(toast, 'Checkout failed: ' + error.message, 'error');
+        checkoutSubmitBtn.disabled = false;
+        checkoutSubmitBtn.textContent = originalText;
+      }
+    }
+
     function renderCart(user, cartData) {
       const container = document.getElementById('cart-content');
       container.innerHTML = `
@@ -204,9 +527,9 @@
       const list = document.getElementById('items-list');
       let subtotal = 0;
 
-      Object.keys(cartData).forEach(cartId => {
+      Object.keys(cartData).forEach((cartId) => {
         const item = cartData[cartId];
-        subtotal += (item.price * item.quantity);
+        subtotal += item.price * item.quantity;
 
         const card = document.createElement('div');
         card.className = 'cart-item';
@@ -226,8 +549,8 @@
               <button class="qty-btn" onclick="window.updateQty('${cartId}', ${item.quantity + 1})">+</button>
               <div style="margin-left:auto; text-align:right;">
                 ${item.price > 0 ? `
-                  ${item.originalPrice && item.originalPrice > item.price ? `<span style="font-size:12px; color:#ff4d4d; text-decoration:line-through; display:block; opacity:0.6;">₹${(item.originalPrice * item.quantity).toFixed(2)}</span>` : ''}
-                  <span style="font-weight:700; font-size:18px; display:block;">₹${(item.price * item.quantity).toFixed(2)}</span>
+                  ${item.originalPrice && item.originalPrice > item.price ? `<span style="font-size:12px; color:#ff4d4d; text-decoration:line-through; display:block; opacity:0.6;">Rs ${(item.originalPrice * item.quantity).toFixed(2)}</span>` : ''}
+                  <span style="font-weight:700; font-size:18px; display:block;">Rs ${(item.price * item.quantity).toFixed(2)}</span>
                 ` : `
                   <span style="font-weight:700; font-size:14px; color:#72a5b8; display:block;">Price to be quoted</span>
                 `}
@@ -239,16 +562,16 @@
         list.appendChild(card);
       });
 
-      const gst = (subtotal * 0.05);
+      const gst = subtotal * 0.05;
       const total = subtotal + gst;
 
       document.getElementById('order-summary').innerHTML = `
         <h3 style="font-family:'Bebas Neue'; font-size:32px; margin-top:0;">Summary</h3>
-        <div class="summary-row"><span>Subtotal</span><span>₹${subtotal.toFixed(2)}</span></div>
-        <div class="summary-row"><span>GST (5%)</span><span>₹${gst.toFixed(2)}</span></div>
+        <div class="summary-row"><span>Subtotal</span><span>Rs ${subtotal.toFixed(2)}</span></div>
+        <div class="summary-row"><span>GST (5%)</span><span>Rs ${gst.toFixed(2)}</span></div>
         <div class="summary-row"><span>Delivery</span><span>FREE</span></div>
-        <div class="summary-total"><div class="summary-row"><span>Total</span><span>₹${total.toFixed(2)}</span></div></div>
-        <a class="checkout-btn" id="cart-checkout-btn" href="checkout.html">Checkout Now</a>
+        <div class="summary-total"><div class="summary-row"><span>Total</span><span>Rs ${total.toFixed(2)}</span></div></div>
+        <button class="checkout-btn" id="cart-checkout-btn" type="button">Checkout Now</button>
       `;
 
       window.updateQty = async (cartId, newQty) => {
@@ -266,49 +589,10 @@
         }
       };
 
-      const proceedToCheckout = async () => {
-        const items = Object.values(cartData);
-        if (items.length === 0) return;
-
-        if (!confirm('Confirm order and proceed to checkout?')) return;
-
-        const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const gst = subtotal * 0.05;
-        const total = subtotal + gst;
-
-        const toast = showToast('Preparing checkout...', 'loading');
-        try {
-          const userSnap = await get(ref(rtdb, `users/${auth.currentUser.uid}`));
-          if (userSnap.exists() && userSnap.val()?.orderBlocked === true) {
-            updateToast(toast, 'Orders are blocked for this account. Please contact support.', 'error');
-            return;
-          }
-
-          const checkoutDraft = {
-            source: 'cart',
-            userId: auth.currentUser.uid,
-            userName: auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
-            userEmail: auth.currentUser.email,
-            items: items,
-            subtotal: subtotal.toFixed(2),
-            gst: gst.toFixed(2),
-            totalAmount: total.toFixed(2),
-            timestamp: Date.now()
-          };
-          sessionStorage.setItem('esskayCheckoutDraft', JSON.stringify(checkoutDraft));
-          updateToast(toast, 'Redirecting to checkout...', 'success');
-          window.location.assign('./checkout.html');
-        } catch (err) {
-          console.error(err);
-          updateToast(toast, 'Checkout failed: ' + err.message, 'error');
-        }
-      };
-
-      document.getElementById('cart-checkout-btn')?.addEventListener('click', (e) => { e.preventDefault(); proceedToCheckout(); });
+      const proceedToCheckout = () => prepareCheckoutModal(user, cartData);
+      document.getElementById('cart-checkout-btn')?.addEventListener('click', proceedToCheckout);
       window.checkout = proceedToCheckout;
     }
   </script>
 </body>
 </html>
-
-
