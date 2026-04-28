@@ -9,7 +9,32 @@
       ".read": "root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'",
       "$uid": {
         ".read": "$uid === auth.uid",
-        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'"
+        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('email').val() === 'business.esskaysportswear@gmail.com'",
+        ".validate": "newData.hasChildren(['name','email','phone','provider','orderBlocked','createdAt']) || newData.hasChildren(['name','email','phone','provider','orderBlocked','createdAt','disabled']) || newData.hasChildren(['name','email','phone','provider','orderBlocked','createdAt','phoneVerified']) || newData.hasChildren(['name','email','phone','provider','orderBlocked','createdAt','disabled','phoneVerified'])",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val().matches(/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/)"
+        },
+        "phone": {
+          ".validate": "newData.isString() && (newData.val().matches(/^[16789]\\d{9}$/) || newData.val() === 'Not provided')"
+        },
+        "provider": {
+          ".validate": "newData.isString() && (newData.val() === 'email' || newData.val() === 'google')"
+        },
+        "orderBlocked": {
+          ".validate": "newData.isBoolean()"
+        },
+        "createdAt": {
+          ".validate": "newData.isString()"
+        },
+        "disabled": {
+          ".validate": "newData.isBoolean()"
+        },
+        "phoneVerified": {
+          ".validate": "newData.isBoolean()"
+        }
       }
     },
     "products": {

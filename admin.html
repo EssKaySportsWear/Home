@@ -236,8 +236,9 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
   </style>
+  <link rel="stylesheet" href="theme.css">
 </head>
-<body>
+<body class="admin-page">
   <div class="admin-container">
     <a href="index.html" class="back-home">← Back to Website</a>
     <h1>Admin Control Panel</h1>
@@ -462,6 +463,40 @@
     </div>
   </div>
 
+  <div id="order-detail-overlay" style="position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); z-index: 2100; display: none; align-items: center; justify-content: center; padding: 20px;">
+    <div class="glass-card" style="width: 100%; max-width: 860px; max-height: 90vh; overflow-y: auto; background: rgba(255, 255, 255, 0.96); padding: 40px; position: relative; border-radius: 32px; box-shadow: 0 40px 100px rgba(0,0,0,0.18);">
+      <button id="close-order-detail" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.05); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+      <div id="order-detail-content"></div>
+    </div>
+  </div>
+
+  <div id="phone-verify-overlay" style="position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); z-index: 2200; display: none; align-items: center; justify-content: center; padding: 20px;">
+    <div class="glass-card" style="width:100%; max-width:520px; background: rgba(255,255,255,0.97); padding:32px; position:relative; border-radius:28px; box-shadow:0 40px 100px rgba(0,0,0,0.18);">
+      <button id="close-phone-verify" style="position:absolute; top:16px; right:16px; background:rgba(0,0,0,0.05); border:none; width:38px; height:38px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
+      <h2 style="font-family:'Bebas Neue', sans-serif; font-size:34px; letter-spacing:1px; margin:0 0 14px; color:#1f150f;">Verify Phone First</h2>
+      <p style="margin:0 0 14px; line-height:1.7; color:#4a4039;">Please verify this phone number before changing the order status from Pending.</p>
+      <div style="background:rgba(0,0,0,0.03); border-radius:18px; padding:16px; margin-bottom:18px;">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; opacity:0.6; margin-bottom:8px;">Customer Phone</div>
+        <div id="phone-verify-number" style="font-size:22px; font-weight:800; color:#1f150f;">Not provided</div>
+      </div>
+      <label style="display:flex; align-items:flex-start; gap:10px; margin-bottom:22px; cursor:pointer; line-height:1.5;">
+        <input type="checkbox" id="phone-verify-forever" style="width:18px; height:18px; margin-top:2px;">
+        <span>Verify it forever for this customer</span>
+      </label>
+      <div style="display:flex; gap:12px;">
+        <button id="phone-verify-confirm" class="submit-btn" style="flex:1; margin-top:0;">Verified</button>
+        <button id="phone-verify-cancel" class="action-btn btn-delete" style="flex:1; margin-right:0;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="user-detail-overlay" style="position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); z-index: 2300; display: none; align-items: center; justify-content: center; padding: 20px;">
+    <div class="glass-card" style="width:100%; max-width:700px; max-height:90vh; overflow-y:auto; background: rgba(255,255,255,0.97); padding:36px; position:relative; border-radius:30px; box-shadow:0 40px 100px rgba(0,0,0,0.18);">
+      <button id="close-user-detail" style="position:absolute; top:18px; right:18px; background:rgba(0,0,0,0.05); border:none; width:38px; height:38px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
+      <div id="user-detail-content"></div>
+    </div>
+  </div>
+
   <style>
     .size-label {
       display: flex;
@@ -485,6 +520,9 @@
     let editingProductId = null;
     let selectedMediaFiles = [];
     let existingMedia = [];
+    let usersLookup = {};
+    let pendingPhoneVerification = null;
+    let currentUserDetailUid = null;
 
     // Global UI references
     let colorPalette, addColorBtn, mediaInput, mediaPreviews, productForm, fastenerType, subOptions;
@@ -496,6 +534,7 @@
         return;
       }
       loadUsers();
+      loadNormalOrders();
       loadOrders();
       loadProducts();
       initTabs();
@@ -527,12 +566,238 @@
         document.getElementById('userTable').style.display = 'table';
         
         if (snapshot.exists()) {
+          usersLookup = snapshot.val() || {};
           renderUsers(snapshot.val());
         }
       } catch (e) {
         console.error(e);
         showToast('Error loading users.', 'error');
       }
+    }
+
+    function getUserMeta(userId, order = {}) {
+      const user = usersLookup[userId] || {};
+      return {
+        name: order.userName || user.name || 'Not provided',
+        email: order.userEmail || user.email || 'Not provided',
+        phone: order.phone || order.mobile || user.phone || user.mobile || 'Not provided',
+        phoneVerified: user.phoneVerified === true
+      };
+    }
+
+    function formatCurrency(value) {
+      const amount = parseFloat(value);
+      return Number.isFinite(amount) ? `₹${amount.toFixed(2)}` : 'Not available';
+    }
+
+    function formatDate(timestamp) {
+      return timestamp ? new Date(timestamp).toLocaleString() : 'Not available';
+    }
+
+    function openOrderDetailModal(title, html) {
+      document.getElementById('order-detail-content').innerHTML = `
+        <h2 style="font-family:'Bebas Neue', sans-serif; font-size:40px; letter-spacing:1px; margin:0 0 24px; color:#1f150f;">${title}</h2>
+        ${html}
+      `;
+      document.getElementById('order-detail-overlay').style.display = 'flex';
+    }
+
+    function buildInfoGrid(items) {
+      return `
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-bottom:24px;">
+          ${items.map(item => `
+            <div style="background:rgba(0,0,0,0.03); border-radius:18px; padding:16px;">
+              <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; opacity:0.6; margin-bottom:8px;">${item.label}</div>
+              <div style="font-size:15px; font-weight:700; line-height:1.5; overflow-wrap:anywhere; word-break:break-word;">${item.value}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function openUserDetailModal(uid, user) {
+      currentUserDetailUid = uid;
+      const joinedDate = user.createdAt ? new Date(user.createdAt).toLocaleString() : 'Not available';
+      const loginMethod = user.provider === 'google'
+        ? 'Google Login'
+        : user.provider === 'email'
+          ? 'Email & Password'
+          : 'Unknown / Older account';
+      const statusLabel = user.disabled === true ? 'Disabled' : 'Active';
+      const ordersBlocked = user.orderBlocked === true;
+      const phoneVerified = user.phoneVerified === true ? 'Verified Forever' : 'Not verified forever';
+
+      document.getElementById('user-detail-content').innerHTML = `
+        <h2 style="font-family:'Bebas Neue', sans-serif; font-size:40px; letter-spacing:1px; margin:0 0 24px; color:#1f150f;">User Account Details</h2>
+        ${buildInfoGrid([
+          { label: 'Name', value: user.name || 'Not provided' },
+          { label: 'Email', value: user.email || 'Not provided' },
+          { label: 'Phone', value: user.phone || 'Not provided' },
+          { label: 'Login Method', value: loginMethod },
+          { label: 'Status', value: statusLabel },
+          { label: 'Joined', value: joinedDate }
+        ])}
+        ${buildInfoGrid([
+          { label: 'Phone Verification', value: phoneVerified },
+          { label: 'Orders', value: ordersBlocked ? 'Blocked from placing orders' : 'Orders allowed' }
+        ])}
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-top:6px;">
+          <button id="toggle-order-block-btn" class="submit-btn" style="margin-top:0;">${ordersBlocked ? 'Unblock Orders' : 'Block Orders'}</button>
+          <button id="toggle-disable-from-modal" class="action-btn ${user.disabled === true ? 'btn-enable' : 'btn-disable'}" style="margin-right:0; padding:16px 20px;">${user.disabled === true ? 'Enable Account' : 'Disable Account'}</button>
+        </div>
+      `;
+
+      document.getElementById('toggle-order-block-btn')?.addEventListener('click', async () => {
+        const nextValue = !(usersLookup[uid]?.orderBlocked === true);
+        const toast = showToast(nextValue ? 'Blocking orders...' : 'Unblocking orders...', 'loading');
+        await update(ref(rtdb, `users/${uid}`), { orderBlocked: nextValue });
+        if (usersLookup[uid]) usersLookup[uid].orderBlocked = nextValue;
+        updateToast(toast, nextValue ? 'Orders blocked for this account.' : 'Orders unblocked for this account.', 'success');
+        openUserDetailModal(uid, usersLookup[uid]);
+        loadUsers();
+      });
+
+      document.getElementById('toggle-disable-from-modal')?.addEventListener('click', async () => {
+        const isDisabled = usersLookup[uid]?.disabled === true;
+        const action = isDisabled ? 'enable' : 'disable';
+        await adminAction(action, uid);
+      });
+
+      document.getElementById('user-detail-overlay').style.display = 'flex';
+    }
+
+    function closePhoneVerifyModal() {
+      document.getElementById('phone-verify-overlay').style.display = 'none';
+      document.getElementById('phone-verify-forever').checked = false;
+      pendingPhoneVerification = null;
+    }
+
+    function requestPhoneVerification({ orderType, orderId, userId, phone, newStatus, currentStatus, selectElement }) {
+      document.getElementById('phone-verify-number').innerText = phone || 'Not provided';
+      document.getElementById('phone-verify-overlay').style.display = 'flex';
+      pendingPhoneVerification = { orderType, orderId, userId, phone, newStatus, currentStatus, selectElement };
+    }
+
+    async function applyOrderStatusChange(orderType, orderId, newStatus) {
+      const path = orderType === 'standard' ? `standardOrders/${orderId}` : `customOrders/${orderId}`;
+      const toast = showToast('Updating status...', 'loading');
+      await update(ref(rtdb, path), { status: newStatus });
+      updateToast(toast, 'Status updated!', 'success');
+    }
+
+    async function handleStatusChangeRequest({ orderType, orderId, order, newStatus, selectElement }) {
+      const currentStatus = order.status || 'Pending';
+      const userMeta = getUserMeta(order.userId, order);
+      const shouldVerifyPhone = currentStatus === 'Pending' && newStatus !== 'Pending' && !userMeta.phoneVerified;
+
+      if (shouldVerifyPhone) {
+        requestPhoneVerification({
+          orderType,
+          orderId,
+          userId: order.userId,
+          phone: userMeta.phone,
+          newStatus,
+          currentStatus,
+          selectElement
+        });
+        return;
+      }
+
+      await applyOrderStatusChange(orderType, orderId, newStatus);
+    }
+
+    function showStandardOrderDetails(id, order) {
+      const userMeta = getUserMeta(order.userId, order);
+      const total = parseFloat(order.totalAmount || 0);
+      const subtotal = total / 1.05;
+      const gst = total - subtotal;
+      const itemsHtml = Array.isArray(order.items) && order.items.length
+        ? order.items.map(item => `
+            <div style="display:flex; justify-content:space-between; gap:16px; padding:14px 0; border-bottom:1px solid rgba(0,0,0,0.06);">
+              <div>
+                <div style="font-weight:700;">${item.name || 'Unnamed item'}</div>
+                <div style="font-size:12px; opacity:0.7;">Size: ${item.size || 'N/A'} | Color: ${item.color || 'N/A'} | Qty: ${item.quantity || 0}</div>
+                <div style="font-size:12px; opacity:0.7;">Neck: ${item.neck || 'Standard'} | Fastener: ${item.fastener || 'Plain'}</div>
+              </div>
+              <div style="text-align:right; font-weight:700;">${formatCurrency((parseFloat(item.price) || 0) * (parseInt(item.quantity) || 0))}</div>
+            </div>
+          `).join('')
+        : '<p style="opacity:0.7;">No item breakdown stored for this order.</p>';
+
+      openOrderDetailModal(`Normal Order #${id.slice(-6).toUpperCase()}`, `
+        ${buildInfoGrid([
+          { label: 'Customer', value: userMeta.name },
+          { label: 'Email', value: userMeta.email },
+          { label: 'Phone', value: userMeta.phone },
+          { label: 'Status', value: order.status || 'Pending' },
+          { label: 'Ordered On', value: formatDate(order.timestamp) },
+          { label: 'Items', value: Array.isArray(order.items) ? `${order.items.length} item(s)` : '0 items' }
+        ])}
+        <div style="margin-bottom:24px;">
+          <h3 style="font-family:'Bebas Neue', sans-serif; font-size:28px; letter-spacing:1px; margin:0 0 12px;">Items Ordered</h3>
+          <div style="background:rgba(0,0,0,0.02); border-radius:20px; padding:0 18px;">${itemsHtml}</div>
+        </div>
+        ${buildInfoGrid([
+          { label: 'Subtotal', value: formatCurrency(subtotal) },
+          { label: 'GST (5%)', value: formatCurrency(gst) },
+          { label: 'Total Paid', value: formatCurrency(total) }
+        ])}
+      `);
+    }
+
+    function showCustomOrderDetails(id, order) {
+      const userMeta = getUserMeta(order.userId, order);
+      const basePrice = parseFloat(order.price || 0);
+      const gst = basePrice * 0.05;
+      const total = basePrice + gst;
+
+      openOrderDetailModal(`Custom Order #${id.slice(-6).toUpperCase()}`, `
+        ${buildInfoGrid([
+          { label: 'Customer', value: userMeta.name },
+          { label: 'Email', value: userMeta.email },
+          { label: 'Phone', value: userMeta.phone },
+          { label: 'Status', value: order.status || 'Pending' },
+          { label: 'Ordered On', value: formatDate(order.timestamp) },
+          { label: 'Product Type', value: order.type || 'Not provided' }
+        ])}
+        ${buildInfoGrid([
+          { label: 'Fabric', value: order.fabric || 'Not provided' },
+          { label: 'Size', value: order.size || 'Not provided' },
+          { label: 'Quantity', value: order.quantity || 'Not provided' },
+          { label: 'Neck', value: order.neck || 'Not provided' },
+          { label: 'Fastener', value: order.fastener || 'Not provided' },
+          { label: 'Sleeves', value: order.sleeves || 'Not provided' }
+        ])}
+        <div style="margin-bottom:24px;">
+          <h3 style="font-family:'Bebas Neue', sans-serif; font-size:28px; letter-spacing:1px; margin:0 0 12px;">Order Details</h3>
+          <div style="background:rgba(0,0,0,0.03); border-radius:20px; padding:18px;">
+            <div style="margin-bottom:12px;"><strong>Delivery Address:</strong><br>${order.address || 'Not provided'}</div>
+            <div><strong>Additional Notes:</strong><br>${order.notes || 'Not provided'}</div>
+          </div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <h3 style="font-family:'Bebas Neue', sans-serif; font-size:28px; letter-spacing:1px; margin:0 0 12px;">Design Images</h3>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
+            <a href="${order.frontImage || '#'}" target="_blank" style="text-decoration:none; color:inherit;">
+              <div style="background:rgba(0,0,0,0.03); border-radius:20px; padding:14px;">
+                <div style="font-size:12px; font-weight:700; opacity:0.6; margin-bottom:10px;">Front Design</div>
+                <img src="${order.frontImage || ''}" style="width:100%; aspect-ratio:1; object-fit:cover; border-radius:16px;">
+              </div>
+            </a>
+            <a href="${order.backImage || '#'}" target="_blank" style="text-decoration:none; color:inherit;">
+              <div style="background:rgba(0,0,0,0.03); border-radius:20px; padding:14px;">
+                <div style="font-size:12px; font-weight:700; opacity:0.6; margin-bottom:10px;">Back Design</div>
+                <img src="${order.backImage || ''}" style="width:100%; aspect-ratio:1; object-fit:cover; border-radius:16px;">
+              </div>
+            </a>
+          </div>
+        </div>
+        ${buildInfoGrid([
+          { label: 'Base Price', value: basePrice ? formatCurrency(basePrice) : 'Not set yet' },
+          { label: 'GST (5%)', value: basePrice ? formatCurrency(gst) : 'Not set yet' },
+          { label: 'Quoted Total', value: basePrice ? formatCurrency(total) : 'Not set yet' }
+        ])}
+      `);
     }
 
     function renderUsers(usersData) {
@@ -560,6 +825,11 @@
             `}
           </td>
         `;
+        tr.style.cursor = 'pointer';
+        tr.addEventListener('click', (e) => {
+          if (e.target.closest('button, a, input, select')) return;
+          openUserDetailModal(uid, user);
+        });
         list.appendChild(tr);
       });
 
@@ -594,13 +864,17 @@
         if (await showConfirm('Disable this user? They will be logged out immediately.', 'Disable User')) {
           showToast('Disabling user...', 'loading');
           await update(userRef, { disabled: true });
+          if (usersLookup[uid]) usersLookup[uid].disabled = true;
           showToast('User disabled.', 'success');
+          if (currentUserDetailUid === uid) openUserDetailModal(uid, usersLookup[uid]);
           setTimeout(() => location.reload(), 1000);
         }
       } else if (action === 'enable') {
         showToast('Enabling user...', 'loading');
         await update(userRef, { disabled: false });
+        if (usersLookup[uid]) usersLookup[uid].disabled = false;
         showToast('User enabled.', 'success');
+        if (currentUserDetailUid === uid) openUserDetailModal(uid, usersLookup[uid]);
         setTimeout(() => location.reload(), 1000);
       } else if (action === 'reset') {
         if (await showConfirm('Send password reset link to ' + extra + '?', 'Password Reset')) {
@@ -648,12 +922,107 @@
       }
     }
 
+    async function loadNormalOrders() {
+      const normalOrdersRef = ref(rtdb, 'standardOrders');
+      try {
+        const snapshot = await get(normalOrdersRef);
+        document.getElementById('loading-normal-orders').style.display = 'none';
+        document.getElementById('normalOrdersTable').style.display = 'table';
+
+        if (snapshot.exists()) {
+          renderNormalOrders(snapshot.val());
+        } else {
+          document.getElementById('loading-normal-orders').innerText = 'No normal orders found.';
+          document.getElementById('loading-normal-orders').style.display = 'block';
+          document.getElementById('normalOrdersTable').style.display = 'none';
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Error loading normal orders.', 'error');
+      }
+    }
+
+    function renderNormalOrders(ordersData) {
+      const list = document.getElementById('normalOrdersList');
+      list.innerHTML = '';
+
+      Object.keys(ordersData).reverse().forEach(id => {
+        const order = ordersData[id];
+        const itemCount = Array.isArray(order.items) ? order.items.length : 0;
+        const itemsSummary = Array.isArray(order.items) && order.items.length
+          ? order.items.map(item => `${item.name} x${item.quantity}`).join(', ')
+          : 'No items recorded';
+        const orderDate = order.timestamp ? new Date(order.timestamp).toLocaleString() : 'N/A';
+
+        const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.innerHTML = `
+          <td>
+            <strong>${order.userName || 'Unknown User'}</strong><br>
+            <span style="font-size:11px;opacity:0.6;">${order.userEmail || 'No email'}</span>
+          </td>
+          <td>
+            <strong>${itemCount} item${itemCount === 1 ? '' : 's'}</strong><br>
+            <span style="font-size:11px;opacity:0.7;">${itemsSummary}</span>
+          </td>
+          <td>
+            <strong>₹${parseFloat(order.totalAmount || 0).toFixed(2)}</strong><br>
+            <span style="font-size:11px;opacity:0.6;">${orderDate}</span>
+          </td>
+          <td>
+            <select class="standard-status-select" data-id="${id}" style="padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.1);font-family:inherit;font-size:12px;background:white;">
+              <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="Confirmed" ${order.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+              <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+              <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+              <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+            </select>
+          </td>
+          <td>
+            <button class="action-btn btn-delete delete-standard-order" data-id="${id}">Delete</button>
+          </td>
+        `;
+        tr.addEventListener('click', (e) => {
+          if (e.target.closest('button, select, input, a')) return;
+          showStandardOrderDetails(id, order);
+        });
+        list.appendChild(tr);
+      });
+
+      document.querySelectorAll('.standard-status-select').forEach(select => {
+        select.addEventListener('change', async (e) => {
+          const id = e.target.dataset.id;
+          const newStatus = e.target.value;
+          await handleStatusChangeRequest({
+            orderType: 'standard',
+            orderId: id,
+            order: ordersData[id],
+            newStatus,
+            selectElement: e.target
+          });
+        });
+      });
+
+      document.querySelectorAll('.delete-standard-order').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.target.dataset.id;
+          if (await showConfirm('Delete this normal order permanently?', 'Delete Order')) {
+            showToast('Deleting normal order...', 'loading');
+            await remove(ref(rtdb, `standardOrders/${id}`));
+            showToast('Normal order deleted.', 'success');
+            setTimeout(() => location.reload(), 1000);
+          }
+        });
+      });
+    }
+
     function renderOrders(ordersData) {
       const list = document.getElementById('ordersList');
       list.innerHTML = '';
       Object.keys(ordersData).reverse().forEach(id => {
         const order = ordersData[id];
         const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
         tr.innerHTML = `
           <td>
             <strong>${order.userEmail}</strong><br>
@@ -684,7 +1053,7 @@
             </div>
           </td>
           <td>
-            <select class="status-select" data-id="${id}" style="padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.1);font-family:inherit;font-size:12px;background:white;">
+            <select class="custom-status-select" data-id="${id}" style="padding:6px;border-radius:6px;border:1px solid rgba(0,0,0,0.1);font-family:inherit;font-size:12px;background:white;">
               <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
               <option value="Confirmed" ${order.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
               <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
@@ -696,6 +1065,10 @@
             <button class="action-btn btn-delete delete-order" data-id="${id}">Delete</button>
           </td>
         `;
+        tr.addEventListener('click', (e) => {
+          if (e.target.closest('button, select, input, a')) return;
+          showCustomOrderDetails(id, order);
+        });
         list.appendChild(tr);
       });
 
@@ -716,13 +1089,17 @@
         };
       });
 
-      document.querySelectorAll('.status-select').forEach(select => {
+      document.querySelectorAll('.custom-status-select').forEach(select => {
         select.addEventListener('change', async (e) => {
           const id = e.target.dataset.id;
           const newStatus = e.target.value;
-          const toast = showToast('Updating status...', 'loading');
-          await update(ref(rtdb, `customOrders/${id}`), { status: newStatus });
-          updateToast(toast, 'Status updated!', 'success');
+          await handleStatusChangeRequest({
+            orderType: 'custom',
+            orderId: id,
+            order: ordersData[id],
+            newStatus,
+            selectElement: e.target
+          });
         });
       });
 
@@ -789,6 +1166,14 @@
     }
 
     function initProductModal() {
+      const orderDetailOverlay = document.getElementById('order-detail-overlay');
+      const closeOrderDetail = document.getElementById('close-order-detail');
+      const phoneVerifyOverlay = document.getElementById('phone-verify-overlay');
+      const closePhoneVerify = document.getElementById('close-phone-verify');
+      const cancelPhoneVerify = document.getElementById('phone-verify-cancel');
+      const confirmPhoneVerify = document.getElementById('phone-verify-confirm');
+      const userDetailOverlay = document.getElementById('user-detail-overlay');
+      const closeUserDetail = document.getElementById('close-user-detail');
       const modal = document.getElementById('product-modal-overlay');
       const openBtn = document.getElementById('btn-create-product');
       const closeBtn = document.getElementById('close-product-modal');
@@ -822,6 +1207,63 @@
         updateFastenerOptions();
       });
       closeBtn?.addEventListener('click', () => modal.style.display = 'none');
+      closeOrderDetail?.addEventListener('click', () => orderDetailOverlay.style.display = 'none');
+      orderDetailOverlay?.addEventListener('click', (e) => {
+        if (e.target === orderDetailOverlay) orderDetailOverlay.style.display = 'none';
+      });
+      closePhoneVerify?.addEventListener('click', () => {
+        if (pendingPhoneVerification?.selectElement) {
+          pendingPhoneVerification.selectElement.value = pendingPhoneVerification.currentStatus;
+        }
+        closePhoneVerifyModal();
+      });
+      cancelPhoneVerify?.addEventListener('click', () => {
+        if (pendingPhoneVerification?.selectElement) {
+          pendingPhoneVerification.selectElement.value = pendingPhoneVerification.currentStatus;
+        }
+        closePhoneVerifyModal();
+      });
+      phoneVerifyOverlay?.addEventListener('click', (e) => {
+        if (e.target === phoneVerifyOverlay) {
+          if (pendingPhoneVerification?.selectElement) {
+            pendingPhoneVerification.selectElement.value = pendingPhoneVerification.currentStatus;
+          }
+          closePhoneVerifyModal();
+        }
+      });
+      closeUserDetail?.addEventListener('click', () => {
+        userDetailOverlay.style.display = 'none';
+        currentUserDetailUid = null;
+      });
+      userDetailOverlay?.addEventListener('click', (e) => {
+        if (e.target === userDetailOverlay) {
+          userDetailOverlay.style.display = 'none';
+          currentUserDetailUid = null;
+        }
+      });
+      confirmPhoneVerify?.addEventListener('click', async () => {
+        if (!pendingPhoneVerification) return;
+        const rememberForever = document.getElementById('phone-verify-forever').checked;
+        const { orderType, orderId, userId, newStatus, selectElement } = pendingPhoneVerification;
+        try {
+          if (rememberForever && userId) {
+            await update(ref(rtdb, `users/${userId}`), {
+              phoneVerified: true
+            });
+            if (usersLookup[userId]) usersLookup[userId].phoneVerified = true;
+          }
+          await applyOrderStatusChange(orderType, orderId, newStatus);
+          selectElement.value = newStatus;
+          closePhoneVerifyModal();
+        } catch (error) {
+          console.error(error);
+          showToast('Could not update status.', 'error');
+          if (pendingPhoneVerification?.selectElement) {
+            pendingPhoneVerification.selectElement.value = pendingPhoneVerification.currentStatus;
+          }
+          closePhoneVerifyModal();
+        }
+      });
 
       qtyType?.addEventListener('change', () => {
         qtyValue.style.display = qtyType.value === 'fixed' ? 'block' : 'none';

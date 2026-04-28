@@ -78,7 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
     inputs: {
       loginEmail: document.getElementById('loginEmail'),
       signupEmail: document.getElementById('signupEmail'),
-      signupName: document.getElementById('signupName')
+      signupName: document.getElementById('signupName'),
+      signupPhone: document.getElementById('signupPhone')
     },
     containers: {
       loginPasswordGroup: document.getElementById('loginPasswordGroup'),
@@ -300,6 +301,9 @@ document.addEventListener('DOMContentLoaded', () => {
   elements.buttons.forgotBack?.addEventListener('click', () => showSection('login'));
   elements.buttons.verifyBack?.addEventListener('click', async () => { await signOut(auth); showSection('login'); });
   elements.buttons.changeEmail?.addEventListener('click', () => showSection('signup'));
+  elements.inputs.signupPhone?.addEventListener('input', () => {
+    elements.inputs.signupPhone.value = elements.inputs.signupPhone.value.replace(/\D/g, '').slice(0, 10);
+  });
 
   elements.forms.login?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -328,15 +332,17 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     hideAllErrors();
     const name = elements.inputs.signupName.value.trim();
+    const phone = elements.inputs.signupPhone.value.trim();
     const email = elements.inputs.signupEmail.value.trim();
     const password = document.getElementById('signupPassword').value;
+    if (!/^[16789]\d{9}$/.test(phone)) { showToast('Enter a valid 10-digit phone number starting with 1, 6, 7, 8, or 9', 'error'); showError('signupError', 'Phone must start with 1, 6, 7, 8, or 9'); return; }
     if (password.length < 6) { showToast('Password too short', 'error'); showError('signupError', 'Min 6 characters'); return; }
     const toast = showToast('Creating account...', 'loading');
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       await sendEmailVerification(user);
-      await set(ref(rtdb, 'users/' + user.uid), { name, email, createdAt: new Date().toISOString() });
+      await set(ref(rtdb, 'users/' + user.uid), { name, phone, email, provider: 'email', orderBlocked: false, createdAt: new Date().toISOString() });
       await signOut(auth);
       if (elements.displayVerifyEmail) elements.displayVerifyEmail.textContent = email;
       updateToast(toast, 'Verification email sent!', 'success');
@@ -357,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const userRef = ref(rtdb, 'users/' + user.uid);
       const snapshot = await get(userRef);
       if (!snapshot.exists()) {
-        await set(userRef, { name: user.displayName || 'Google User', email: user.email, createdAt: new Date().toISOString() });
+        await set(userRef, { name: user.displayName || 'Google User', phone: 'Not provided', email: user.email, provider: 'google', orderBlocked: false, createdAt: new Date().toISOString() });
       }
       updateToast(toast, 'Login successful', 'success');
       setTimeout(() => window.location.href = 'index.html', 1000);

@@ -399,9 +399,10 @@
       text-decoration: underline;
     }
   </style>
+  <link rel="stylesheet" href="theme.css">
 </head>
 
-<body>
+<body class="login-page">
   <nav class="site-nav">
 
     <button id="mobile-menu-btn" aria-label="Toggle menu">
@@ -412,7 +413,7 @@
 
     <div class="nav-links">
       <a class="nav-link" href="index.html"><img class="nav-icon" src="homen.png" data-normal="homen.png" data-active="homef.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
-      <a class="nav-link" href="products.html"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
+      <a class="nav-link" href="index.html#products-section"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
       <a class="nav-link" href="cart.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Cart" style="width:20px;height:20px;margin-right:8px;">Cart</a>
       <a class="nav-link active auth-nav-btn" href="login.html"><img class="nav-icon" src="accf.png" data-normal="accn.png" data-active="accf.png" alt="Login/SignUp" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
       <button class="nav-link user-nav-btn" id="nav-user-btn" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="User" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
@@ -480,6 +481,15 @@
         <div class="input-group">
           <label>Full Name</label>
           <input type="text" id="signupName" required placeholder="John Doe">
+        </div>
+        <div class="input-group">
+          <label>Phone Number</label>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <select id="signupCountryCode" disabled style="width:88px; flex:0 0 88px;">
+              <option value="+91" selected>+91</option>
+            </select>
+            <input type="tel" id="signupPhone" required placeholder="10-digit mobile number" pattern="[16789][0-9]{9}" maxlength="10" inputmode="numeric" style="flex:1;">
+          </div>
         </div>
         <div class="input-group">
           <label>Email</label>

@@ -1,6 +1,6 @@
 import { auth, rtdb } from './firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
-import { ref, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { ref, onValue, get } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   const navItems = document.querySelectorAll('.nav-link');
@@ -150,15 +150,16 @@ document.addEventListener('DOMContentLoaded', () => {
   function initAuthSwap(user) {
     const authBtns = document.querySelectorAll('.auth-nav-btn');
     const userBtns = document.querySelectorAll('.user-nav-btn');
-    const userNames = document.querySelectorAll('#nav-username');
     const adminLinks = document.querySelectorAll('#nav-admin-link');
 
     if (user) {
+      const fallbackName = user.displayName || user.email?.split('@')[0] || 'User';
+
       authBtns.forEach(btn => btn.style.display = 'none');
       userBtns.forEach(btn => {
         btn.style.display = 'inline-flex';
         const nameSpan = btn.querySelector('#nav-username');
-        if (nameSpan) nameSpan.innerText = user.displayName || user.email.split('@')[0];
+        if (nameSpan) nameSpan.innerText = fallbackName;
         
         btn.onclick = () => {
           if (confirm('Do you want to logout?')) auth.signOut();
@@ -167,6 +168,18 @@ document.addEventListener('DOMContentLoaded', () => {
       adminLinks.forEach(link => {
         link.style.display = user.email === ADMIN_EMAIL ? 'inline-flex' : 'none';
       });
+
+      get(ref(rtdb, `users/${user.uid}`))
+        .then((userSnap) => {
+          if (!userSnap.exists() || !userSnap.val()?.name) return;
+          userBtns.forEach(btn => {
+            const nameSpan = btn.querySelector('#nav-username');
+            if (nameSpan) nameSpan.innerText = userSnap.val().name;
+          });
+        })
+        .catch((error) => {
+          console.warn('Navbar user name fallback in use:', error);
+        });
     } else {
       authBtns.forEach(btn => btn.style.display = 'inline-flex');
       userBtns.forEach(btn => btn.style.display = 'none');

@@ -835,8 +835,9 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="theme.css">
 </head>
-<body>
+<body class="home-page">
   <nav class="site-nav">
 
     <button id="mobile-menu-btn" aria-label="Toggle menu">
@@ -1072,14 +1073,14 @@
           </div>
         </div>
         
-        <button type="submit" id="submitOrderBtn" class="submit-btn" disabled>Place Custom Order</button>
+        <button type="submit" id="submitOrderBtn" class="submit-btn" disabled>Continue to Checkout</button>
       </form>
     </div>
   </div>
 
   <script type="module">
     import { auth, rtdb } from './firebase.js';
-    import { ref, push, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+    import { ref, push, serverTimestamp, get } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
     import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
     import { showToast, updateToast } from './toast-system.js';
 
@@ -1186,6 +1187,14 @@
         submitBtn.innerHTML = '<div class="toast-spinner" style="width:20px;height:20px;border-width:3px;"></div> Processing...';
 
         try {
+          const userSnap = await get(ref(rtdb, `users/${currentUser.uid}`));
+          if (userSnap.exists() && userSnap.val()?.orderBlocked === true) {
+            updateToast(toast, 'Orders are blocked for this account. Please contact support.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+            return;
+          }
+
           // Cloudinary Upload Helper
           const uploadToCloudinary = async (file) => {
             const formData = new FormData();
@@ -1207,12 +1216,14 @@
             uploadToCloudinary(backInput.files[0])
           ]);
 
-          updateToast(toast, 'Placing your order...', 'loading');
+          updateToast(toast, 'Preparing checkout...', 'loading');
 
           const formData = new FormData(form);
           const orderData = {
+            source: 'custom',
             userId: currentUser.uid,
             userEmail: currentUser.email,
+            userName: currentUser.displayName || currentUser.email.split('@')[0],
             timestamp: Date.now(),
             type: formData.get('type'),
             fabric: formData.get('fabric'),
@@ -1228,12 +1239,9 @@
             status: 'Pending'
           };
 
-          await push(ref(rtdb, 'customOrders'), orderData);
-          updateToast(toast, 'Order placed successfully!', 'success');
-          
-          setTimeout(() => {
-            window.location.href = 'orders.html';
-          }, 1500);
+          sessionStorage.setItem('esskayCheckoutDraft', JSON.stringify(orderData));
+          updateToast(toast, 'Redirecting to checkout...', 'success');
+          window.location.assign('./checkout.html');
           
           // Reset form
           form.reset();
@@ -1243,9 +1251,7 @@
           backUploadBox.querySelector('.upload-placeholder').style.display = 'flex';
           validateForm();
           
-          setTimeout(() => {
-            closePopup();
-          }, 1000);
+          if (typeof closePopup === 'function') closePopup();
         } catch (error) {
           updateToast(toast, 'Error: ' + error.message, 'error');
         } finally {

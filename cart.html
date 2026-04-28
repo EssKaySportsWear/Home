@@ -125,8 +125,9 @@
     .empty-cart h2 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; }
     .shop-now { display: inline-block; margin-top: 24px; background: #1f150f; color: white; padding: 16px 40px; border-radius: 14px; text-decoration: none; font-weight: 600; }
   </style>
+  <link rel="stylesheet" href="theme.css">
 </head>
-<body>
+<body class="cart-page">
 
   <nav class="site-nav">
     <button id="mobile-menu-btn" aria-label="Toggle menu">
@@ -247,7 +248,7 @@
         <div class="summary-row"><span>GST (5%)</span><span>₹${gst.toFixed(2)}</span></div>
         <div class="summary-row"><span>Delivery</span><span>FREE</span></div>
         <div class="summary-total"><div class="summary-row"><span>Total</span><span>₹${total.toFixed(2)}</span></div></div>
-        <button class="checkout-btn" onclick="window.checkout()">Checkout Now</button>
+        <a class="checkout-btn" id="cart-checkout-btn" href="checkout.html">Checkout Now</a>
       `;
 
       window.updateQty = async (cartId, newQty) => {
@@ -265,7 +266,7 @@
         }
       };
 
-      window.checkout = async () => {
+      const proceedToCheckout = async () => {
         const items = Object.values(cartData);
         if (items.length === 0) return;
 
@@ -275,49 +276,39 @@
         const gst = subtotal * 0.05;
         const total = subtotal + gst;
 
-        const toast = showToast('Processing your order...', 'loading');
+        const toast = showToast('Preparing checkout...', 'loading');
         try {
-          const orderData = {
+          const userSnap = await get(ref(rtdb, `users/${auth.currentUser.uid}`));
+          if (userSnap.exists() && userSnap.val()?.orderBlocked === true) {
+            updateToast(toast, 'Orders are blocked for this account. Please contact support.', 'error');
+            return;
+          }
+
+          const checkoutDraft = {
+            source: 'cart',
             userId: auth.currentUser.uid,
             userName: auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
             userEmail: auth.currentUser.email,
             items: items,
+            subtotal: subtotal.toFixed(2),
+            gst: gst.toFixed(2),
             totalAmount: total.toFixed(2),
-            status: 'Pending',
             timestamp: Date.now()
           };
-
-          // 1. Create standard order
-          await push(ref(rtdb, 'standardOrders'), orderData);
-
-          // 2. Reduce stock for each product
-          for (const item of items) {
-            if (!item.isCustom) {
-              const pRef = ref(rtdb, `products/${item.productId}`);
-              const pSnap = await get(pRef);
-              if (pSnap.exists()) {
-                const p = pSnap.val();
-                if (p.qtyType === 'fixed') {
-                  const newStock = Math.max(0, (parseInt(p.quantity) || 0) - item.quantity);
-                  await update(pRef, { quantity: newStock });
-                }
-              }
-            }
-          }
-
-          // 3. Clear cart
-          await remove(ref(rtdb, `carts/${auth.currentUser.uid}`));
-          
-          updateToast(toast, 'Order placed successfully!', 'success');
-          setTimeout(() => {
-            window.location.href = 'orders.html';
-          }, 1500);
+          sessionStorage.setItem('esskayCheckoutDraft', JSON.stringify(checkoutDraft));
+          updateToast(toast, 'Redirecting to checkout...', 'success');
+          window.location.assign('./checkout.html');
         } catch (err) {
           console.error(err);
           updateToast(toast, 'Checkout failed: ' + err.message, 'error');
         }
       };
+
+      document.getElementById('cart-checkout-btn')?.addEventListener('click', (e) => { e.preventDefault(); proceedToCheckout(); });
+      window.checkout = proceedToCheckout;
     }
   </script>
 </body>
 </html>
+
+

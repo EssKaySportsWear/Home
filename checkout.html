@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - EssKay Sportswear</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    :root {
+      --content-width: min(1240px, calc(100% - 32px));
+    }
+    body {
+      margin: 0;
+      font-family: "Sora", sans-serif;
+      min-height: 100vh;
+    }
+    .checkout-shell {
+      width: var(--content-width);
+      margin: 48px auto 80px;
+    }
+    .checkout-header h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(44px, 8vw, 72px);
+      letter-spacing: 1px;
+      margin: 0 0 10px;
+      color: #1f150f;
+    }
+    .checkout-header p {
+      margin: 0;
+      color: #6f6256;
+      max-width: 560px;
+      line-height: 1.7;
+    }
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 28px;
+      margin-top: 34px;
+    }
+    .checkout-card {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid rgba(223,111,23,0.1);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 24px 60px rgba(97,52,11,0.12);
+    }
+    .checkout-card h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 1px;
+      font-size: 32px;
+      margin: 0 0 18px;
+      color: #1f150f;
+    }
+    .checkout-form {
+      display: grid;
+      gap: 18px;
+    }
+    .checkout-form label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      color: #4f4339;
+    }
+    .checkout-form input,
+    .checkout-form textarea,
+    .checkout-form select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(184, 105, 18, 0.16);
+      background: #fffdfa;
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    .payment-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 18px;
+      border: 1px solid rgba(223,111,23,0.12);
+      border-radius: 18px;
+      background: rgba(255,248,239,0.7);
+      font-weight: 700;
+    }
+    .summary-list {
+      display: grid;
+      gap: 14px;
+    }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .summary-label {
+      color: #6f6256;
+    }
+    .summary-total {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .checkout-items {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .checkout-item {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,248,239,0.7);
+      border: 1px solid rgba(223,111,23,0.08);
+    }
+    .checkout-item img {
+      width: 72px;
+      height: 72px;
+      border-radius: 14px;
+      object-fit: cover;
+      flex: 0 0 72px;
+    }
+    .checkout-item h3,
+    .checkout-item p {
+      margin: 0;
+    }
+    .checkout-item p {
+      color: #6f6256;
+      font-size: 12px;
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+    .sticky-summary {
+      position: sticky;
+      top: 120px;
+      height: fit-content;
+    }
+    .checkout-empty {
+      width: min(720px, calc(100% - 32px));
+      margin: 80px auto;
+      text-align: center;
+    }
+    .checkout-empty h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 56px;
+      margin: 0 0 14px;
+    }
+    @media (max-width: 960px) {
+      .checkout-grid {
+        grid-template-columns: 1fr;
+      }
+      .sticky-summary {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body class="checkout-page">
+  <nav class="site-nav">
+    <button id="mobile-menu-btn" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html"><img class="nav-icon" src="homen.png" data-normal="homen.png" data-active="homef.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
+      <a class="nav-link" href="index.html#products-section"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
+      <a class="nav-link" href="cart.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Cart" style="width:20px;height:20px;margin-right:8px;">Cart</a>
+      <a class="nav-link" href="orders.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Orders" style="width:20px;height:20px;margin-right:8px;">My Orders</a>
+      <a class="nav-link auth-nav-btn" href="login.html"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Login/SignUp" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
+      <button class="nav-link user-nav-btn" id="nav-user-btn" style="display:none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="User" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
+      <a class="nav-link admin-nav-btn" href="admin.html" id="nav-admin-link" style="display:none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Admin" style="width:20px;height:20px;margin-right:8px;">Admin</a>
+    </div>
+  </nav>
+  <div id="nav-overlay"></div>
+
+  <main id="checkout-root">
+    <div class="checkout-empty">
+      <h1>Loading Checkout</h1>
+      <p style="color:#6f6256; line-height:1.7;">Preparing your checkout session...</p>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    import { getDatabase, ref, push, get, update, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
+    const GST_RATE = 0.05;
+    const draftKey = 'esskayCheckoutDraft';
+    let draft = null;
+    const ADMIN_EMAIL = 'business.esskaysportswear@gmail.com';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDd0qqrkRLzq7UyK5_MwZv6tYAnHBeWHHg",
+      authDomain: "esskaysportsdata.firebaseapp.com",
+      projectId: "esskaysportsdata",
+      storageBucket: "esskaysportsdata.firebasestorage.app",
+      messagingSenderId: "734706027382",
+      appId: "1:734706027382:web:bb9bc72eec36e2eed94857",
+      databaseURL: "https://esskaysportsdata-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const rtdb = getDatabase(app);
+
+    function showToast(message, type = 'info') {
+      const existing = document.getElementById('checkout-toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.id = 'checkout-toast';
+      toast.style.cssText = `position:fixed; right:20px; bottom:20px; z-index:4000; padding:14px 18px; border-radius:16px; color:white; font-weight:700; box-shadow:0 18px 35px rgba(0,0,0,0.18); background:${type === 'error' ? '#c9482b' : type === 'success' ? '#228b5a' : '#df6f17'}; max-width:320px;`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      if (type !== 'loading') {
+        setTimeout(() => toast.remove(), 2600);
+      }
+      return toast;
+    }
+
+    function updateToast(toast, message, type = 'info') {
+      if (!toast) return showToast(message, type);
+      toast.textContent = message;
+      toast.style.background = type === 'error' ? '#c9482b' : type === 'success' ? '#228b5a' : '#df6f17';
+      if (type !== 'loading') {
+        setTimeout(() => toast.remove(), 2600);
+      }
+      return toast;
+    }
+
+    function initCheckoutNav(user) {
+      const authBtn = document.querySelector('.auth-nav-btn');
+      const userBtn = document.querySelector('.user-nav-btn');
+      const username = document.getElementById('nav-username');
+      const adminLink = document.getElementById('nav-admin-link');
+      const hamburgerBtn = document.getElementById('mobile-menu-btn');
+      const navOverlay = document.getElementById('nav-overlay');
+      const navLinks = document.querySelector('.nav-links');
+
+      hamburgerBtn?.addEventListener('click', () => {
+        document.body.classList.toggle('mobile-nav-open');
+      });
+      navOverlay?.addEventListener('click', () => {
+        document.body.classList.remove('mobile-nav-open');
+      });
+
+      if (!user) {
+        if (authBtn) authBtn.style.display = 'inline-flex';
+        if (userBtn) userBtn.style.display = 'none';
+        if (adminLink) adminLink.style.display = 'none';
+        return;
+      }
+
+      if (authBtn) authBtn.style.display = 'none';
+      if (userBtn) {
+        userBtn.style.display = 'inline-flex';
+        username.textContent = user.displayName || user.email.split('@')[0];
+        userBtn.onclick = () => {
+          if (confirm('Do you want to logout?')) signOut(auth);
+        };
+      }
+
+      get(ref(rtdb, `users/${user.uid}`)).then((snap) => {
+        if (snap.exists()) {
+          const userData = snap.val();
+          if (userData.name) username.textContent = userData.name;
+        }
+      }).catch(() => {});
+
+      if (adminLink) adminLink.style.display = user.email === ADMIN_EMAIL ? 'inline-flex' : 'none';
+
+      const cartLink = document.querySelector('a[href="cart.html"]');
+      if (cartLink) {
+        onValue(ref(rtdb, `carts/${user.uid}`), (snap) => {
+          const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+          let badge = cartLink.querySelector('.cart-badge');
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'cart-badge';
+            badge.style.cssText = 'position:absolute; top:-2px; right:-2px; background:#ff4d4d; color:white; font-size:10px; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; box-shadow:0 4px 10px rgba(255, 77, 77, 0.3);';
+            cartLink.style.position = 'relative';
+            cartLink.appendChild(badge);
+          }
+          badge.innerText = count;
+          badge.style.display = count > 0 ? 'flex' : 'none';
+        });
+      }
+    }
+
+    function formatCurrency(value) {
+      const amount = parseFloat(value || 0);
+      return `₹${amount.toFixed(2)}`;
+    }
+
+    function renderEmpty(message) {
+      document.getElementById('checkout-root').innerHTML = `
+        <div class="checkout-empty">
+          <h1>Checkout Unavailable</h1>
+          <p style="color:#6f6256; line-height:1.7;">${message}</p>
+          <a class="shop-now" href="index.html" style="display:inline-block; margin-top:24px;">Back to Home</a>
+        </div>
+      `;
+    }
+
+    function renderCheckout() {
+      const isCustom = draft.source === 'custom';
+      const subtotal = parseFloat(draft.subtotal || (isCustom ? (draft.price || 0) : 0));
+      const gst = parseFloat(draft.gst || (subtotal * GST_RATE));
+      const total = parseFloat(draft.totalAmount || (subtotal + gst));
+
+      const itemsMarkup = isCustom
+        ? `
+          <div class="checkout-item">
+            <img src="${draft.frontImage}" alt="Custom order preview">
+            <div>
+              <h3>Custom ${draft.type || 'Order'}</h3>
+              <p>Fabric: ${draft.fabric || 'N/A'}<br>Size: ${draft.size || 'N/A'} | Qty: ${draft.quantity || 0}<br>Neck: ${draft.neck || 'N/A'} | Fastener: ${draft.fastener || 'N/A'}</p>
+            </div>
+          </div>
+        `
+        : (draft.items || []).map(item => `
+          <div class="checkout-item">
+            <img src="${item.image}" alt="${item.name}">
+            <div>
+              <h3>${item.name}</h3>
+              <p>Size: ${item.size || 'N/A'} | Qty: ${item.quantity || 0}<br>Color: ${item.color || 'N/A'} | Neck: ${item.neck || 'Standard'} | Fastener: ${item.fastener || 'Plain'}</p>
+            </div>
+          </div>
+        `).join('');
+
+      document.getElementById('checkout-root').innerHTML = `
+        <div class="checkout-shell">
+          <div class="checkout-header">
+            <h1>Checkout</h1>
+            <p>Review your order, confirm the delivery address, and place it with Cash on Delivery.</p>
+          </div>
+          <div class="checkout-grid">
+            <section class="checkout-card">
+              <h2>Delivery Details</h2>
+              <form class="checkout-form" id="checkout-form">
+                <div>
+                  <label>Full Name</label>
+                  <input type="text" id="checkout-name" value="${draft.userName || ''}" required>
+                </div>
+                <div>
+                  <label>Phone Number</label>
+                  <input type="tel" id="checkout-phone" value="${draft.phone || ''}" placeholder="10-digit phone number" maxlength="10" required>
+                </div>
+                <div>
+                  <label>Delivery Address</label>
+                  <textarea id="checkout-address" rows="4" placeholder="Enter your full address with pincode" required>${draft.address || ''}</textarea>
+                </div>
+                <div>
+                  <label>Payment Option</label>
+                  <div class="payment-option">
+                    <input type="radio" id="payment-cod" name="paymentMethod" value="COD" checked>
+                    <label for="payment-cod" style="margin:0; font-size:14px; font-weight:700; text-transform:none; letter-spacing:0;">Cash on Delivery (COD)</label>
+                  </div>
+                </div>
+                ${isCustom ? `
+                  <div>
+                    <label>Additional Notes</label>
+                    <textarea id="checkout-notes" rows="3" placeholder="Any extra instructions...">${draft.notes || ''}</textarea>
+                  </div>
+                ` : ''}
+                <button type="submit" class="submit-btn" id="place-order-btn">Place Order</button>
+              </form>
+            </section>
+            <aside class="checkout-card sticky-summary">
+              <h2>Order Summary</h2>
+              <div class="summary-list">
+                <div class="summary-item"><span class="summary-label">Subtotal</span><strong>${formatCurrency(subtotal)}</strong></div>
+                <div class="summary-item"><span class="summary-label">GST (5%)</span><strong>${formatCurrency(gst)}</strong></div>
+                <div class="summary-item"><span class="summary-label">Payment</span><strong>COD</strong></div>
+              </div>
+              <div class="summary-total"><span>Total</span><span>${formatCurrency(total)}</span></div>
+              <div class="checkout-items">${itemsMarkup}</div>
+            </aside>
+          </div>
+        </div>
+      `;
+
+      const phoneInput = document.getElementById('checkout-phone');
+      phoneInput?.addEventListener('input', () => {
+        phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 10);
+      });
+
+      document.getElementById('checkout-form')?.addEventListener('submit', placeOrder);
+    }
+
+    async function placeOrder(e) {
+      e.preventDefault();
+      const user = auth.currentUser;
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const fullName = document.getElementById('checkout-name').value.trim();
+      const phone = document.getElementById('checkout-phone').value.trim();
+      const address = document.getElementById('checkout-address').value.trim();
+      const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'COD';
+      const notesField = document.getElementById('checkout-notes');
+
+      if (!fullName) return showToast('Please enter your full name.', 'error');
+      if (!/^[16789]\d{9}$/.test(phone)) return showToast('Enter a valid 10-digit phone number.', 'error');
+      if (!address) return showToast('Please enter your delivery address.', 'error');
+      if (paymentMethod !== 'COD') return showToast('Only COD is available right now.', 'error');
+
+      const submitBtn = document.getElementById('place-order-btn');
+      submitBtn.disabled = true;
+      const originalText = submitBtn.innerText;
+      submitBtn.innerText = 'Processing...';
+
+      const toast = showToast('Placing your order...', 'loading');
+
+      try {
+        const userSnap = await get(ref(rtdb, `users/${user.uid}`));
+        if (userSnap.exists() && userSnap.val()?.orderBlocked === true) {
+          updateToast(toast, 'Orders are blocked for this account. Please contact support.', 'error');
+          submitBtn.disabled = false;
+          submitBtn.innerText = originalText;
+          return;
+        }
+
+        if (draft.source === 'custom') {
+          const orderData = {
+            userId: user.uid,
+            userName: fullName,
+            userEmail: user.email,
+            phone,
+            timestamp: Date.now(),
+            type: draft.type,
+            fabric: draft.fabric,
+            size: draft.size,
+            quantity: draft.quantity,
+            neck: draft.neck,
+            fastener: draft.fastener,
+            sleeves: draft.sleeves,
+            address,
+            notes: notesField?.value.trim() || '',
+            frontImage: draft.frontImage,
+            backImage: draft.backImage,
+            paymentMethod: 'COD',
+            status: 'Pending'
+          };
+
+          await push(ref(rtdb, 'customOrders'), orderData);
+        } else {
+          const items = draft.items || [];
+          const total = parseFloat(draft.totalAmount || 0);
+          const subtotal = parseFloat(draft.subtotal || 0);
+          const gst = parseFloat(draft.gst || 0);
+
+          const orderData = {
+            userId: user.uid,
+            userName: fullName,
+            userEmail: user.email,
+            phone,
+            address,
+            items,
+            subtotal: subtotal.toFixed(2),
+            gst: gst.toFixed(2),
+            totalAmount: total.toFixed(2),
+            paymentMethod: 'COD',
+            status: 'Pending',
+            timestamp: Date.now()
+          };
+
+          await push(ref(rtdb, 'standardOrders'), orderData);
+
+          for (const item of items) {
+            if (!item.isCustom) {
+              const pRef = ref(rtdb, `products/${item.productId}`);
+              const pSnap = await get(pRef);
+              if (pSnap.exists()) {
+                const p = pSnap.val();
+                if (p.qtyType === 'fixed') {
+                  const newStock = Math.max(0, (parseInt(p.quantity) || 0) - item.quantity);
+                  await update(pRef, { quantity: newStock });
+                }
+              }
+            }
+          }
+
+          await remove(ref(rtdb, `carts/${user.uid}`));
+        }
+
+        await update(ref(rtdb, `users/${user.uid}`), {
+          name: fullName,
+          phone
+        });
+
+        sessionStorage.removeItem(draftKey);
+        updateToast(toast, 'Order placed successfully!', 'success');
+        setTimeout(() => {
+          window.location.href = 'orders.html';
+        }, 1000);
+      } catch (error) {
+        console.error(error);
+        updateToast(toast, 'Checkout failed: ' + error.message, 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerText = originalText;
+      }
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      initCheckoutNav(user);
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const rawDraft = sessionStorage.getItem(draftKey);
+      if (!rawDraft) {
+        renderEmpty('There is no checkout session right now. Start from cart or custom order and then come back here.');
+        return;
+      }
+
+      try {
+        draft = JSON.parse(rawDraft);
+      } catch (error) {
+        console.error(error);
+        renderEmpty('The checkout session could not be restored. Please start again.');
+        return;
+      }
+
+      renderCheckout();
+    });
+  </script>
+</body>
+</html>
