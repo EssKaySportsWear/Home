@@ -8,100 +8,25 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script type="module" src="navbar-complete.js"></script>
-  <style>
-    :root {
-      --bg: #F3E3D0;
-      --accent: #72a5b8;
-      --text: #1f150f;
-      --content-width: min(1240px, calc(100% - 32px));
-    }
-    body {
-      margin: 0;
-      font-family: "Sora", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    .site-nav {
-      position: sticky;
-      top: 18px;
-      z-index: 1000;
-      width: var(--content-width);
-      margin: 18px auto 0;
-      padding: 14px 18px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .nav-links { display: flex; align-items: center; gap: 8px; }
-    .nav-link {
-      display: inline-flex;
-      align-items: center;
-      min-height: 48px;
-      padding: 0 18px;
-      border-radius: 999px;
-      color: #000000;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-    .nav-link.active { background: #AACDDC; color: #1f150f; font-weight: 700; }
-    button.nav-link {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: inherit;
-      padding: 0 18px;
-    }
-
-    .orders-container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
-    .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 48px; margin-bottom: 40px; }
-
-    .order-card {
-      background: rgba(255,255,255,0.5);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 24px;
-      margin-bottom: 20px;
-      border: 1px solid rgba(255,255,255,0.3);
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-    .order-card:hover { transform: translateY(-4px); }
-    
-    .order-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-    .order-id { font-weight: 800; font-size: 18px; }
-    .order-date { font-size: 13px; opacity: 0.5; }
-    
-    .status-badge {
-      padding: 6px 14px;
-      border-radius: 99px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .status-pending { background: #fffae6; color: #d4a017; }
-    .status-confirmed { background: #e6f7ff; color: #1890ff; }
-    .status-processing { background: #f0f0ff; color: #722ed1; }
-    .status-shipped { background: #f6ffed; color: #52c41a; }
-    .status-delivered { background: #e6fffb; color: #13c2c2; }
-
-    .order-items { border-top: 1px solid rgba(0,0,0,0.05); padding-top: 20px; }
-    .item-row { display: flex; gap: 16px; margin-bottom: 12px; align-items: center; }
-    .item-thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; }
-
-    .empty-state { text-align: center; padding: 80px 0; }
-    .empty-state h2 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; opacity: 0.3; }
-  </style>
+  <link rel="stylesheet" href="theme.css">
+  <script type="module" src="navbar-complete.js"></script>
+</head>
+<body class="orders-page">
+  <nav class="site-nav">
+    <button id="mobile-menu-btn" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html"><img class="nav-icon" src="homen.png" data-normal="homen.png" data-active="homef.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
+      <a class="nav-link" href="index.html#products-section"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
+      <a class="nav-link" href="cart.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Cart" style="width:20px;height:20px;margin-right:8px;">Cart</a>
+      <a class="nav-link active" href="orders.html"><img class="nav-icon" src="cartf.png" data-normal="cartn.png" data-active="cartf.png" alt="Orders" style="width:20px;height:20px;margin-right:8px;">My Orders</a>
+      <a class="nav-link auth-nav-btn" href="login.html" id="nav-auth-link"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Login/SignUp" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
+      <button class="nav-link user-nav-btn" id="nav-user-btn" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="User" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
+      <a class="nav-link admin-nav-btn" href="admin.html" id="nav-admin-link" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Admin" style="width:20px;height:20px;margin-right:8px;">Admin</a>
+    </div>
+  </nav>
+  <div id="nav-overlay"></div>
   <link rel="stylesheet" href="theme.css">
 </head>
 <body class="orders-page">

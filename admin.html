@@ -7,238 +7,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #F3E3D0;
-      --accent: #72a5b8;
-      --text: #1f150f;
-    }
-    body {
-      margin: 0;
-      font-family: "Sora", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 40px 20px;
-    }
-    .admin-container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 48px;
-      letter-spacing: 2px;
-      margin-bottom: 40px;
-      text-align: center;
-    }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 24px;
-      padding: 30px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.05);
-      margin-bottom: 30px;
-    }
-    .table-container {
-      overflow-x: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-    th, td {
-      padding: 16px;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-    th {
-      font-size: 13px;
-      font-weight: 700;
-      opacity: 0.6;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    td {
-      font-size: 14px;
-    }
-    .status-badge {
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .status-active { background: #e6f4ea; color: #1e7e34; }
-    .status-disabled { background: #fdf2f2; color: #c81e1e; }
-
-    .action-btn {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      transition: all 0.2s;
-      margin-right: 4px;
-    }
-    .btn-edit { background: #f0f4f8; color: #72a5b8; }
-    .btn-disable { background: #fff1f1; color: #ff4d4d; }
-    .btn-enable { background: #f0fff4; color: #28a745; }
-    .btn-reset { background: #f0f4f8; color: #555; }
-    .btn-delete { background: #333; color: white; }
-
-    .action-btn:hover { transform: translateY(-2px); opacity: 0.8; }
-
-    #loading { text-align: center; font-weight: 600; opacity: 0.5; padding: 40px; }
-
-    .search-box {
-      width: 100%;
-      padding: 14px 20px;
-      border-radius: 12px;
-      border: 1px solid rgba(0,0,0,0.1);
-      background: rgba(255,255,255,0.6);
-      margin-bottom: 20px;
-      font-family: inherit;
-      outline: none;
-    }
-
-    .back-home {
-      display: inline-block;
-      margin-bottom: 20px;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    /* ── Admin Sub-Nav ── */
-    .admin-nav {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 32px;
-      background: rgba(255, 255, 255, 0.2);
-      padding: 8px;
-      border-radius: 16px;
-      width: fit-content;
-    }
-    .nav-tab {
-      padding: 12px 24px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      color: var(--text);
-      opacity: 0.6;
-    }
-    .nav-tab.active {
-      background: white;
-      color: var(--accent);
-      opacity: 1;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .tab-content {
-      display: none;
-      animation: fadeIn 0.4s ease;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── Premium Form Styling ── */
-    .custom-form label {
-      display: block;
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 10px;
-      opacity: 0.7;
-      color: #1f150f;
-    }
-    .custom-form input[type="text"],
-    .custom-form input[type="number"],
-    .custom-form select,
-    .custom-form textarea {
-      width: 100%;
-      padding: 14px 18px;
-      border-radius: 14px;
-      border: 1px solid rgba(0,0,0,0.08);
-      background: rgba(255,255,255,0.8);
-      font-family: 'Sora', sans-serif;
-      font-size: 14px;
-      color: #1f150f;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-sizing: border-box;
-      outline: none;
-    }
-    .custom-form input:focus, 
-    .custom-form select:focus {
-      border-color: var(--accent);
-      background: white;
-      box-shadow: 0 10px 30px rgba(114, 165, 184, 0.15);
-      transform: translateY(-2px);
-    }
-    .custom-form .form-group {
-      margin-bottom: 10px;
-    }
-    .custom-form .full-width {
-      grid-column: span 2;
-    }
-    .submit-btn {
-      background: #1f150f;
-      color: white;
-      padding: 18px;
-      border: none;
-      border-radius: 16px;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 20px;
-      letter-spacing: 2px;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 20px;
-    }
-    .submit-btn:hover {
-      background: var(--accent);
-      transform: scale(1.02);
-      box-shadow: 0 20px 40px rgba(114, 165, 184, 0.3);
-    }
-    .submit-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .color-item {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .remove-color {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #ff4d4d;
-      color: white;
-      border: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      font-size: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-  </style>
   <link rel="stylesheet" href="theme.css">
+  <script type="module" src="navbar-complete.js"></script>
 </head>
 <body class="admin-page">
+  <nav class="site-nav">
+    <button id="mobile-menu-btn" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a class="nav-link" href="index.html"><img class="nav-icon" src="homen.png" data-normal="homen.png" data-active="homef.png" alt="Home" style="width:20px;height:20px;margin-right:8px;">Home</a>
+      <a class="nav-link" href="index.html#products-section"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" alt="Products" style="width:20px;height:20px;margin-right:8px;">Products</a>
+      <a class="nav-link" href="cart.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Cart" style="width:20px;height:20px;margin-right:8px;">Cart</a>
+      <a class="nav-link" href="orders.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" alt="Orders" style="width:20px;height:20px;margin-right:8px;">My Orders</a>
+      <a class="nav-link auth-nav-btn" href="login.html" id="nav-auth-link"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="Login/SignUp" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
+      <button class="nav-link user-nav-btn" id="nav-user-btn" style="display: none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" alt="User" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
+      <a class="nav-link admin-nav-btn active" href="admin.html" id="nav-admin-link" style="display: none;"><img class="nav-icon" src="accf.png" data-normal="accn.png" data-active="accf.png" alt="Admin" style="width:20px;height:20px;margin-right:8px;">Admin</a>
+    </div>
+  </nav>
+  <div id="nav-overlay"></div>
   <div class="admin-container">
     <a href="index.html" class="back-home">← Back to Website</a>
     <h1>Admin Control Panel</h1>
