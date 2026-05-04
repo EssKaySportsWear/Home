@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const href = link.getAttribute('href');
       link.classList.remove('active');
       
-      if (href && (href === currentPage || (href.includes('#') && currentPage === href.split('#')[0] && currentHash === '#' + href.split('#')[1]))) {
+      if (href && (href === currentPage || (href.includes('#') && currentPage === href.split('#')[0] && currentHash === '#' + href.split('#')[1])))) {
         link.classList.add('active');
       }
     });
@@ -63,10 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
     hamburgerBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       body.classList.toggle('mobile-nav-open');
-      
-      // Toggle accessibility state
-      const isOpen = body.classList.contains('mobile-nav-open');
-      hamburgerBtn.setAttribute('aria-expanded', isOpen);
     });
   }
 
@@ -79,13 +75,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Close on nav link click + handle navigation
   navItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-      // Don't prevent default, we want the link to work
-      // Just close the menu
-      setTimeout(() => {
+    item.addEventListener('click', e => {
+      const href = item.getAttribute('href');
+      const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+      
+      if (href === currentPage) {
+        // Same page - no action
         body.classList.remove('mobile-nav-open');
-      }, 100);
+        return;
+      }
+      
+      navItems.forEach(i => {
+        i.classList.remove('active');
+        setIcon(i, 'normal');
+      });
+      item.classList.add('active');
+      setIcon(item, 'active');
+      
+      body.classList.remove('mobile-nav-open'); // Close mobile menu
+      
+      if (href && href !== '#') {
+        window.location.href = href;
+      }
     });
+    // Hover handled by CSS in index.html and cart.html now
   });
 
   // Close on document click (outside sidebar)

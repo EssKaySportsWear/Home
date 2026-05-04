@@ -9,8 +9,6 @@ import {
   signInWithEmailAndPassword, 
   GoogleAuthProvider, 
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   onAuthStateChanged,
   sendPasswordResetEmail,
   sendEmailVerification,
@@ -359,52 +357,18 @@ document.addEventListener('DOMContentLoaded', () => {
   async function handleGoogleSignIn() {
     isProcessingGoogle = true;
     const toast = showToast('Signing in with Google...', 'loading');
-    
-    // Check if mobile
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
     try {
-      if (isMobile) {
-        await signInWithRedirect(auth, googleProvider);
-      } else {
-        const result = await signInWithPopup(auth, googleProvider);
-        await processAuthResult(result.user, toast);
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      const userRef = ref(rtdb, 'users/' + user.uid);
+      const snapshot = await get(userRef);
+      if (!snapshot.exists()) {
+        await set(userRef, { name: user.displayName || 'Google User', phone: 'Not provided', email: user.email, provider: 'google', orderBlocked: false, createdAt: new Date().toISOString() });
       }
-    } catch (error) { 
-      updateToast(toast, getFriendlyError(error), 'error'); 
-      isProcessingGoogle = false; 
-    }
+      updateToast(toast, 'Login successful', 'success');
+      setTimeout(() => window.location.href = 'index.html', 1000);
+    } catch (error) { updateToast(toast, getFriendlyError(error), 'error'); isProcessingGoogle = false; }
   }
-
-  async function processAuthResult(user, toast) {
-    const userRef = ref(rtdb, 'users/' + user.uid);
-    const snapshot = await get(userRef);
-    if (!snapshot.exists()) {
-      await set(userRef, { 
-        name: user.displayName || 'Google User', 
-        phone: 'Not provided', 
-        email: user.email, 
-        provider: 'google', 
-        orderBlocked: false, 
-        createdAt: new Date().toISOString() 
-      });
-    }
-    if (toast) updateToast(toast, 'Login successful', 'success');
-    setTimeout(() => window.location.href = 'index.html', 1000);
-  }
-
-  // Handle redirect result on page load
-  getRedirectResult(auth).then(async (result) => {
-    if (result) {
-      isProcessingGoogle = true;
-      const toast = showToast('Completing Google Sign-in...', 'loading');
-      await processAuthResult(result.user, toast);
-    }
-  }).catch((error) => {
-    if (error.code !== 'auth/popup-closed-by-user') {
-      showToast(getFriendlyError(error), 'error');
-    }
-  });
 
   elements.buttons.loginGoogle?.addEventListener('click', (e) => { e.preventDefault(); handleGoogleSignIn(); });
   elements.buttons.signupGoogle?.addEventListener('click', (e) => { e.preventDefault(); handleGoogleSignIn(); });
