@@ -53,13 +53,24 @@
       transition: all 0.3s ease;
     }
     .nav-link.active { background: #AACDDC; color: #1f150f; font-weight: 700; }
-    button.nav-link {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: inherit;
-      padding: 0 18px;
+    @media (max-width: 768px) {
+      .site-nav { justify-content: flex-start; margin: 10px 14px; top: 10px; width: auto; height: auto; padding: 0; background: none; border: none; backdrop-filter: none; border-radius: 12px; overflow: visible; z-index: 1005; }
+      #mobile-menu-btn { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; background: rgba(255,255,255,0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3); padding: 10px; cursor: pointer; z-index: 1002; width: 48px; height: 48px; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+      #mobile-menu-btn span { width: 22px; height: 2.5px; background: #1f150f; border-radius: 2px; display: block; }
+      .nav-links {
+        position: fixed; top: 0; left: 0; width: min(300px, 85vw); height: 100dvh;
+        background: rgba(255,255,255,0.95); backdrop-filter: blur(30px);
+        flex-direction: column; padding: 90px 16px 24px; gap: 4px; translate: -100% 0;
+        transition: translate 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1001; box-shadow: 4px 0 32px rgba(0,0,0,0.15); overflow-y: auto;
+      }
+      body.mobile-nav-open .nav-links { translate: 0 0; }
+      .nav-link { width: 100%; justify-content: flex-start; min-height: 54px; border-radius: 14px; color: #1f150f; }
+      .nav-link.active { background: rgba(170,205,220,0.4); }
+      #indicator { display: none; }
+      #nav-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+      body.mobile-nav-open #nav-overlay { opacity: 1; visibility: visible; }
+      body.mobile-nav-open { overflow: hidden; }
     }
 
     .orders-container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
@@ -101,22 +112,34 @@
 
     .empty-state { text-align: center; padding: 80px 0; }
     .empty-state h2 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; opacity: 0.3; }
+
+    @media (max-width: 580px) {
+      .page-title { font-size: 36px; margin-bottom: 24px; }
+      .order-card { padding: 16px; border-radius: 20px; }
+      .order-id { font-size: 15px; }
+      .status-badge { padding: 4px 10px; font-size: 10px; }
+      .order-header { margin-bottom: 16px; }
+      .item-row { gap: 12px; }
+      .item-thumb { width: 40px; height: 40px; }
+    }
   </style>
   <link rel="stylesheet" href="theme.css">
 </head>
 <body class="orders-page">
 
   <nav class="site-nav">
+    <button id="mobile-menu-btn" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
     <div class="nav-links">
       <a class="nav-link" href="index.html"><img class="nav-icon" src="homen.png" data-normal="homen.png" data-active="homef.png" style="width:20px;height:20px;margin-right:8px;">Home</a>
       <a class="nav-link" href="index.html#products-section"><img class="nav-icon" src="productsn.png" data-normal="productsn.png" data-active="productsf.png" style="width:20px;height:20px;margin-right:8px;">Products</a>
       <a class="nav-link" href="cart.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" style="width:20px;height:20px;margin-right:8px;">Cart</a>
       <a class="nav-link active" href="orders.html"><img class="nav-icon" src="cartn.png" data-normal="cartn.png" data-active="cartf.png" style="width:20px;height:20px;margin-right:8px;">My Orders</a>
-      <a class="nav-link auth-nav-btn" href="login.html" style="display:none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" style="width:20px;height:20px;margin-right:8px;">Login/SignUp</a>
-      <button class="nav-link user-nav-btn" id="nav-user-btn" style="display:none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" style="width:20px;height:20px;margin-right:8px;"><span id="nav-username">User</span></button>
-      <a class="nav-link admin-nav-btn" href="admin.html" id="nav-admin-link" style="display:none;"><img class="nav-icon" src="accn.png" data-normal="accn.png" data-active="accf.png" style="width:20px;height:20px;margin-right:8px;">Admin</a>
     </div>
   </nav>
+
+  <div id="nav-overlay"></div>
 
   <div class="orders-container">
     <h1 class="page-title">Your Orders</h1>
@@ -226,6 +249,7 @@
                   ` : `
                     <div style="font-weight:700; color:var(--accent);">Price to be quoted</div>
                   `}
+                  ${isPending ? (order.deliveryDateTime ? `<div style="font-size:12px; color:#ff6b35; margin-top:8px; font-weight:600;">Expected delivery: ${new Date(order.deliveryDateTime).toLocaleString()}</div>` : `<div style="font-size:12px; color:#ff6b35; margin-top:8px; font-weight:600;">You will get delivery date after atleast one day</div>`) : ''}
                 </div>
                 ${isPending ? `
                   <button class="action-btn" onclick="window.cancelOrder('${order.id}', '${order.type}')" style="background:#ff4d4d; color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-size:12px;">Cancel Order</button>

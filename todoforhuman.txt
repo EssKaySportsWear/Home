@@ -23,14 +23,18 @@
       }
     },
     "customOrders": {
-      ".indexOn": ["userId", "price", "status"],
+      ".indexOn": ["userId", "price", "status", "deliveryDateTime"],
       ".read": "auth != null",
       ".write": "auth != null"
     },
     "standardOrders": {
-      ".indexOn": ["userId"],
+      ".indexOn": ["userId", "deliveryDateTime"],
       ".read": "auth != null",
       ".write": "auth != null"
+    },
+    "ordersBlocked": {
+      ".read": "auth != null && auth.token.email === 'business.esskaysportswear@gmail.com'",
+      ".write": "auth != null && auth.token.email === 'business.esskaysportswear@gmail.com'"
     }
   }
 }

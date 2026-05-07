@@ -2,7 +2,7 @@ import { auth, rtdb } from './firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 import { ref, onValue, get } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+function initNavbar() {
   const navItems = document.querySelectorAll('.nav-link');
   const hamburgerBtn = document.getElementById('mobile-menu-btn');
   const overlay = document.getElementById('nav-overlay');
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const href = link.getAttribute('href');
       link.classList.remove('active');
       
-      if (href && (href === currentPage || (href.includes('#') && currentPage === href.split('#')[0] && currentHash === '#' + href.split('#')[1])))) {
+      if (href && (href === currentPage || (href.includes('#') && currentPage === href.split('#')[0] && currentHash === '#' + href.split('#')[1]))) {
         link.classList.add('active');
       }
     });
@@ -128,7 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const cartRef = ref(rtdb, `carts/${user.uid}`);
     onValue(cartRef, (snap) => {
-      const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+      const cartData = snap.exists() ? snap.val() : {};
+      const count = Object.values(cartData).reduce((sum, item) => sum + (item.quantity || 0), 0);
+      const displayCount = count > 99 ? '99+' : count;
       cartLinks.forEach(link => {
         let badge = link.querySelector('.cart-badge');
         if (!badge) {
@@ -138,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
           link.style.position = 'relative';
           link.appendChild(badge);
         }
-        badge.innerText = count;
+        badge.innerText = displayCount;
         badge.style.display = count > 0 ? 'flex' : 'none';
       });
     });
@@ -160,10 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.style.display = 'inline-flex';
         const nameSpan = btn.querySelector('#nav-username');
         if (nameSpan) nameSpan.innerText = fallbackName;
-        
-        btn.onclick = () => {
-          if (confirm('Do you want to logout?')) auth.signOut();
-        };
       });
       adminLinks.forEach(link => {
         link.style.display = user.email === ADMIN_EMAIL ? 'inline-flex' : 'none';
@@ -191,6 +189,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initCartBadge(user);
     initAuthSwap(user);
   });
-});
+}
 
-
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initNavbar);
+} else {
+  initNavbar();
+}

@@ -28,6 +28,22 @@ const toastStyles = `
     gap: 12px;
     pointer-events: none;
   }
+  @media (max-width: 580px) {
+    #toast-container {
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+    }
+    .toast-item {
+      min-width: 0 !important;
+      max-width: 100% !important;
+      width: 100%;
+    }
+    .custom-dialog-card {
+      padding: 24px !important;
+      margin: 16px;
+    }
+  }
 
   .toast-item {
     pointer-events: auto;

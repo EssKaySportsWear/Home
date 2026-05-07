@@ -166,6 +166,31 @@
         position: static;
       }
     }
+    @media (max-width: 768px) {
+      .site-nav { justify-content: flex-start; margin: 10px 14px; top: 10px; width: auto; height: auto; padding: 0; background: none; border: none; backdrop-filter: none; border-radius: 12px; overflow: visible; z-index: 1005; }
+      #mobile-menu-btn { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; background: rgba(255,255,255,0.85); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.3); padding: 10px; cursor: pointer; z-index: 1002; width: 48px; height: 48px; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+      #mobile-menu-btn span { width: 22px; height: 2.5px; background: #1f150f; border-radius: 2px; display: block; }
+      .nav-links {
+        position: fixed; top: 0; left: 0; width: min(300px, 85vw); height: 100dvh;
+        background: rgba(255,255,255,0.95); backdrop-filter: blur(30px);
+        flex-direction: column; padding: 90px 16px 24px; gap: 4px; translate: -100% 0;
+        transition: translate 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1001; box-shadow: 4px 0 32px rgba(0,0,0,0.15); overflow-y: auto;
+      }
+      body.mobile-nav-open .nav-links { translate: 0 0; }
+      .nav-link { width: 100%; justify-content: flex-start; min-height: 54px; border-radius: 14px; color: #1f150f; }
+      .nav-link.active { background: rgba(170,205,220,0.4); }
+      #indicator { display: none; }
+      #nav-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+      body.mobile-nav-open #nav-overlay { opacity: 1; visibility: visible; }
+      body.mobile-nav-open { overflow: hidden; }
+      
+      .checkout-shell { margin: 24px auto 60px; }
+      .checkout-header h1 { font-size: 36px; }
+      .checkout-card { padding: 20px; border-radius: 20px; }
+      .checkout-card h2 { font-size: 26px; }
+      .checkout-item img { width: 60px; height: 60px; flex: 0 0 60px; }
+    }
   </style>
 </head>
 <body class="checkout-page">
@@ -427,9 +452,28 @@
       const toast = showToast('Placing your order...', 'loading');
 
       try {
-        const userSnap = await get(ref(rtdb, `users/${user.uid}`));
+        const [userSnap, blockedSnap] = await Promise.all([
+          get(ref(rtdb, `users/${user.uid}`)),
+          get(ref(rtdb, 'ordersBlocked'))
+        ]);
+        const blocked = blockedSnap.exists() ? blockedSnap.val() : {};
+
         if (userSnap.exists() && userSnap.val()?.orderBlocked === true) {
           updateToast(toast, 'Orders are blocked for this account. Please contact support.', 'error');
+          submitBtn.disabled = false;
+          submitBtn.innerText = originalText;
+          return;
+        }
+
+        if (draft.source === 'custom' && blocked.custom === true) {
+          updateToast(toast, 'Custom orders are currently blocked. Please try later.', 'error');
+          submitBtn.disabled = false;
+          submitBtn.innerText = originalText;
+          return;
+        }
+
+        if (draft.source !== 'custom' && blocked.normal === true) {
+          updateToast(toast, 'Normal orders are currently blocked. Please try later.', 'error');
           submitBtn.disabled = false;
           submitBtn.innerText = originalText;
           return;

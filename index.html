@@ -131,55 +131,57 @@
       .site-nav {
         justify-content: flex-start;
         gap: 12px;
-        padding: 12px;
-        width: 60px;
-        height: 60px;
+        padding: 0;
+        width: auto;
+        height: auto;
         max-width: none;
-        margin: 12px 16px;
-        top: 12px;
+        margin: 10px 14px;
+        top: 10px;
         background: none;
-        border-radius: 16px;
-        backdrop-filter: blur(25px);
-      }
-
-      .site-nav::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255,255,255,0.1);
-        border-radius: 16px;
-        z-index: -1;
+        border-radius: 12px;
+        backdrop-filter: none;
+        border: none;
+        overflow: visible;
+        z-index: 1005;
       }
 
       #mobile-menu-btn {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 4px;
-        background: none;
-        border: none;
-        padding: 8px;
+        align-items: center;
+        gap: 5px;
+        background: rgba(255,255,255,0.85);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255,255,255,0.3);
+        padding: 10px;
         cursor: pointer;
-        z-index: 40;
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
-        transition: all var(--ease);
+        z-index: 1002;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        position: relative;
       }
 
       #mobile-menu-btn span {
-        width: 24px;
-        height: 2px;
-        background: var(--muted-strong);
-        transition: all var(--ease);
+        width: 22px;
+        height: 2.5px;
+        background: #1f150f;
+        transition: all 0.3s ease;
         transform-origin: center;
+        border-radius: 2px;
+        display: block;
+      }
+
+      body.mobile-nav-open #mobile-menu-btn {
+        z-index: 1002;
       }
 
       body.mobile-nav-open #mobile-menu-btn span:nth-child(1) {
-        transform: rotate(45deg) translate(6px, 6px);
+        transform: rotate(45deg) translate(5px, 5px);
       }
 
       body.mobile-nav-open #mobile-menu-btn span:nth-child(2) {
@@ -187,37 +189,26 @@
       }
 
       body.mobile-nav-open #mobile-menu-btn span:nth-child(3) {
-        transform: rotate(-45deg) translate(6px, -6px);
+        transform: rotate(-45deg) translate(5px, -5px);
       }
 
       .nav-links {
         position: fixed;
         top: 0;
         left: 0;
-        width: min(320px, 85vw);
+        width: min(300px, 85vw);
         height: 100dvh;
-        background: rgba(255,255,255,0.18);
+        background: rgba(255,255,255,0.95);
         backdrop-filter: blur(30px);
         -webkit-backdrop-filter: blur(30px);
         flex-direction: column;
-        padding: 0;
-        gap: 0;
+        padding: 90px 16px 24px;
+        gap: 4px;
         translate: -100% 0;
-        transition: translate var(--ease);
-        z-index: 35;
-        box-shadow: 4px 0 32px rgba(0,0,0,0.3);
-        overflow: hidden;
-      }
-
-      .nav-links::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255,255,255,0.08);
-        z-index: -1;
+        transition: translate 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1001;
+        box-shadow: 4px 0 32px rgba(0,0,0,0.15);
+        overflow-y: auto;
       }
 
       body.mobile-nav-open .nav-links {
@@ -229,26 +220,34 @@
         z-index: 2;
         display: flex;
         align-items: center;
-        padding: 20px 24px;
+        padding: 14px 20px;
         margin: 0;
-        min-height: 64px;
-        font-size: 16px;
-        border-radius: 0;
+        min-height: 54px;
+        font-size: 15px;
+        font-weight: 500;
+        border-radius: 14px;
         width: 100%;
         border: none;
         background: none;
         justify-content: flex-start;
-        transition: all var(--ease);
+        transition: background 0.2s ease;
+        color: #1f150f;
+        text-decoration: none;
+      }
+
+      .nav-link:hover,
+      .nav-link:active {
+        background: rgba(170, 205, 220, 0.2);
       }
 
       .nav-link.active {
         background: rgba(170, 205, 220, 0.4);
-        color: white !important;
+        color: #1f150f !important;
+        font-weight: 700;
       }
 
       #indicator {
-        position: absolute !important;
-        border-radius: 16px;
+        display: none;
       }
 
       #nav-overlay {
@@ -258,10 +257,10 @@
         width: 100vw;
         height: 100vh;
         background: rgba(0,0,0,0.4);
-        z-index: 31;
+        z-index: 1000;
         opacity: 0;
         visibility: hidden;
-        transition: all var(--ease);
+        transition: all 0.3s ease;
       }
 
       body.mobile-nav-open #nav-overlay {
@@ -271,6 +270,62 @@
 
       body.mobile-nav-open {
         overflow: hidden;
+      }
+    }
+
+    /* ── Touch Friendly Improvements ── */
+    @media (max-width: 580px) {
+      .nav-link, .custom-order-btn, .add-cart-btn {
+        min-height: 48px;
+      }
+      
+      #home-section {
+        height: 100dvh;
+        min-height: 100dvh;
+        padding-bottom: 20px;
+      }
+
+      .home-content {
+        height: auto !important;
+        padding: 20px 16px 20px !important;
+        justify-content: flex-start;
+        gap: 12px;
+      }
+
+      .brand-title {
+        font-size: clamp(1.6rem, 7vw, 2.2rem) !important;
+        margin-bottom: 2px;
+      }
+
+      .brand-tagline {
+        font-size: 12px;
+        margin-top: 0;
+        margin-bottom: 6px;
+      }
+
+      .feature-pill {
+        margin-bottom: 6px;
+        padding: 4px 10px;
+        font-size: 10px;
+      }
+
+      .custom-order-wrapper {
+        gap: 10px;
+      }
+
+      .custom-order-img {
+        max-width: 150px !important;
+        max-height: 180px !important;
+      }
+
+      .custom-order-btn {
+        padding: 10px 24px;
+        font-size: 13px;
+        width: auto;
+      }
+
+      .scroll-hint {
+        display: none; /* Hide scroll hint on mobile to save space */
       }
     }
 
@@ -503,8 +558,11 @@
       right: 16px;
       width: 40px;
       height: 40px;
+      min-width: 48px;
+      min-height: 48px;
+      padding: 8px;
       border: 1px solid rgba(255,255,255,0.22);
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.18);
       border-radius: 50%;
       color: #1f150f;
       font-size: 24px;
@@ -514,6 +572,8 @@
       justify-content: center;
       line-height: 1;
       transition: all 0.3s ease;
+      z-index: 20;
+      touch-action: manipulation;
     }
     .popup-close:hover {
       background: rgba(255, 255, 255, 0.32);
@@ -521,24 +581,56 @@
       border-color: rgba(255,255,255,0.45);
     }
 
+    @media (max-width: 768px) {
+      .popup-close {
+        top: 18px;
+        right: 18px;
+        min-width: 52px;
+        min-height: 52px;
+      }
+    }
+
     /* ── Home mobile responsive ──────────────────────── */
     @media (max-width: 768px) {
       .home-content {
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         text-align: center;
-        gap: 28px;
-        padding: 0 16px;
+        gap: 12px;
+        padding: 30px 16px 20px !important;
       }
       .brand-title {
-        font-size: clamp(36px, 11vw, 58px);
+        font-size: clamp(2rem, 9vw, 2.6rem) !important;
+        line-height: 1.1;
+        white-space: normal; /* Allow wrap on mobile */
+        margin-bottom: 2px;
+      }
+      .brand-tagline {
+        font-size: 13px;
+        margin-top: 0;
+        margin-bottom: 6px;
       }
       .custom-order-img {
-        max-width: 220px;
+        max-width: 200px;
+        max-height: 240px;
       }
       .custom-order-btn {
-        padding: 13px 32px;
-        font-size: 15px;
+        padding: 11px 28px;
+        font-size: 14px;
+        position: relative;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: auto;
+      }
+      .feature-pill {
+        margin-bottom: 8px;
+        padding: 5px 12px;
+        font-size: 11px;
+      }
+
+      .custom-order-wrapper {
+        gap: 10px;
       }
     }
 
@@ -609,12 +701,20 @@
       max-width: 900px;
       max-height: 90vh;
       overflow-y: auto;
+      overflow-x: hidden;
       border-radius: 32px;
       display: grid;
       grid-template-columns: 1.2fr 1fr;
       padding: 40px;
       gap: 40px;
       position: relative;
+    }
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 32px;
+      overflow: hidden;
     }
     .close-modal {
       position: absolute;
@@ -630,7 +730,6 @@
     }
     .modal-details h2 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; margin: 0 0 10px; color: #1f150f; }
     .add-cart-btn {
-      flex: 1;
       height: 60px;
       background: #1f150f;
       color: white;
@@ -641,6 +740,9 @@
       letter-spacing: 2px;
       cursor: pointer;
       transition: all 0.3s;
+      white-space: nowrap;
+      padding: 0 32px;
+      flex-shrink: 0;
     }
     .add-cart-btn:hover { background: #72a5b8; transform: translateY(-2px); }
 
@@ -817,15 +919,9 @@
     .submit-btn:not(:disabled):hover {
       background: #3a2a1e;
       transform: translateY(-4px);
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 20px;
     }
     .modal-details h2 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; margin: 0 0 10px; color: #1f150f; }
     .add-cart-btn {
-      flex: 1;
       height: 60px;
       background: #1f150f;
       color: white;
@@ -836,6 +932,9 @@
       letter-spacing: 2px;
       cursor: pointer;
       transition: all 0.3s;
+      white-space: nowrap;
+      padding: 0 32px;
+      flex-shrink: 0;
     }
     .add-cart-btn:hover { background: #72a5b8; transform: translateY(-2px); }
 
@@ -1018,8 +1117,37 @@
       transform: translateY(-2px);
     }
     @media (max-width: 768px) {
+      .modal-overlay {
+        padding: 10px;
+      }
+      .modal-content {
+        grid-template-columns: 1fr;
+        padding: 20px;
+        gap: 20px;
+        max-height: calc(100vh - 20px);
+        width: 100%;
+      }
+      .modal-details h2 {
+        font-size: 28px;
+      }
+      .qty-control {
+        gap: 12px;
+        margin-top: 20px;
+      }
+      .qty-control > div {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+      .add-cart-btn {
+        height: 50px;
+        font-size: 14px;
+        padding: 0 20px;
+        flex-shrink: 0;
+      }
       .popup-card {
-        padding: 32px 24px;
+        padding: 20px 16px;
         width: 95vw;
       }
       .form-grid, .upload-row {
@@ -1191,8 +1319,8 @@
           </div>
           <!-- Quantity -->
           <div class="form-group">
-            <label>Quantity (Min 5)</label>
-            <input type="number" name="quantity" min="5" value="5" required>
+            <label>Quantity (Min 50)</label>
+            <input type="number" name="quantity" min="50" value="50" required>
           </div>
           <!-- Gender -->
           <div class="form-group">
@@ -1202,6 +1330,10 @@
               <option value="Male">Male</option>
               <option value="Female">Female</option>
             </select>
+          </div>
+          <div class="form-group full-width female-notice" id="femaleOrderNotice" style="display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px; border:1px solid rgba(255, 170, 0, 0.35); background: rgba(255, 238, 210, 0.95); border-radius: 22px; padding: 18px;">
+            <img src="orangeqr.png" alt="Female order QR" style="width:180px; max-width:100%; border-radius:20px; object-fit:contain;">
+            <p style="margin:0; font-size:16px; font-weight:700; color:#1f150f;">For female order contact or call <a href="tel:+919899565707" style="color:#d95b0f; text-decoration:none;">+91 98995 65707</a></p>
           </div>
           <!-- Address -->
           <div class="form-group full-width">
@@ -1302,6 +1434,36 @@
       // Conditional Neck logic for custom order
       const fastenerSelect = document.getElementById('custom-fastener');
       const neckSelect = document.getElementById('custom-neck');
+      const genderSelect = document.querySelector('select[name="gender"]');
+      const femaleOrderNotice = document.getElementById('femaleOrderNotice');
+      const allFormGroups = Array.from(document.querySelectorAll('#customOrderForm .form-group'));
+      const genderGroup = genderSelect?.closest('.form-group');
+      const otherGroups = allFormGroups.filter(group => group !== genderGroup && group !== femaleOrderNotice);
+
+      const updateFemaleView = () => {
+        const femaleSelected = genderSelect?.value === 'Female';
+        if (!genderSelect) return;
+
+        otherGroups.forEach(group => {
+          group.style.display = femaleSelected ? 'none' : '';
+          group.querySelectorAll('select,input,textarea').forEach(el => {
+            if (femaleSelected) {
+              el.dataset.savedRequired = el.required ? 'true' : 'false';
+              el.required = false;
+            } else if (el.dataset.savedRequired !== undefined) {
+              el.required = el.dataset.savedRequired === 'true';
+            }
+          });
+        });
+
+        femaleOrderNotice.style.display = femaleSelected ? 'flex' : 'none';
+        if (femaleSelected) {
+          submitBtn.style.display = 'none';
+        } else {
+          submitBtn.style.display = '';
+        }
+      };
+
       if (fastenerSelect && neckSelect) {
         fastenerSelect.addEventListener('change', () => {
           const isButtons = fastenerSelect.value === 'buttons';
@@ -1315,6 +1477,10 @@
         });
       }
 
+      if (genderSelect) {
+        genderSelect.addEventListener('change', updateFemaleView);
+      }
+
       if (btn && popup && close) {
         btn.addEventListener('click', () => {
           if (!currentUser) {
@@ -1323,6 +1489,7 @@
           }
           popup.classList.add('open');
           document.body.style.overflow = 'hidden';
+          updateFemaleView();
         });
 
         const closePopup = () => {
@@ -1382,9 +1549,21 @@
         submitBtn.innerHTML = '<div class="toast-spinner" style="width:20px;height:20px;border-width:3px;"></div> Processing...';
 
         try {
-          const userSnap = await get(ref(rtdb, `users/${currentUser.uid}`));
+          const [userSnap, blockedSnap] = await Promise.all([
+            get(ref(rtdb, `users/${currentUser.uid}`)),
+            get(ref(rtdb, 'ordersBlocked'))
+          ]);
+          const blocked = blockedSnap.exists() ? blockedSnap.val() : {};
+
           if (userSnap.exists() && userSnap.val()?.orderBlocked === true) {
             updateToast(toast, 'Orders are blocked for this account. Please contact support.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+            return;
+          }
+
+          if (blocked.custom === true) {
+            updateToast(toast, 'Custom orders are currently blocked. Please try later.', 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnText;
             return;
@@ -1525,13 +1704,13 @@
     });
 
     function checkMinQty() {
-      if (!userCart) return 5;
+      if (!userCart) return 50;
       const alreadyInCart = Object.values(userCart).some(item => 
         item.productId === currentProduct?.id && 
         item.size === selectedSize && 
         item.color === selectedColor
       );
-      return alreadyInCart ? 1 : 5;
+      return alreadyInCart ? 1 : 50;
     }
 
     let allProducts = [];

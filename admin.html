@@ -145,6 +145,24 @@
     .tab-content.active {
       display: block;
     }
+    @media (max-width: 768px) {
+      h1 { font-size: 32px; margin-bottom: 24px; }
+      .glass-card { padding: 16px; border-radius: 16px; }
+      .admin-nav {
+        width: 100%;
+        overflow-x: auto;
+        padding: 4px;
+        gap: 8px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .nav-tab {
+        padding: 8px 16px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      th, td { padding: 12px 8px; font-size: 12px; }
+      .back-home { font-size: 12px; }
+    }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -235,6 +253,23 @@
       justify-content: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
+    @media (max-width: 580px) {
+      .custom-form {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+      }
+      .custom-form .full-width {
+        grid-column: span 1 !important;
+      }
+      #product-modal-overlay > div {
+        padding: 24px 16px !important;
+        border-radius: 20px !important;
+      }
+      #product-modal-overlay h2 {
+        font-size: 28px !important;
+        margin-bottom: 20px !important;
+      }
+    }
   </style>
   <link rel="stylesheet" href="theme.css">
 </head>
@@ -275,6 +310,10 @@
     <!-- Normal Orders Tab -->
     <div id="normal-orders" class="tab-content">
       <div class="glass-card">
+        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; align-items:center;">
+          <div id="normal-orders-status" style="font-size:14px; color:#1f150f;">Normal orders are currently allowed.</div>
+          <button class="submit-btn" id="normal-orders-toggle-btn" style="margin-top:0;">Stop Normal Orders</button>
+        </div>
         <div class="table-container">
           <div id="loading-normal-orders">Loading normal orders...</div>
           <table id="normalOrdersTable" style="display: none;">
@@ -296,6 +335,10 @@
     <!-- Custom Orders Tab -->
     <div id="orders" class="tab-content">
       <div class="glass-card">
+        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; align-items:center;">
+          <div id="custom-orders-status" style="font-size:14px; color:#1f150f;">Custom orders are currently allowed.</div>
+          <button class="submit-btn" id="custom-orders-toggle-btn" style="margin-top:0;">Stop Custom Orders</button>
+        </div>
         <div class="table-container">
           <div id="loading-orders">Loading custom orders...</div>
           <table id="ordersTable" style="display: none;">
@@ -490,6 +533,22 @@
     </div>
   </div>
 
+  <div id="delivery-date-overlay" style="position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); z-index: 2250; display: none; align-items: center; justify-content: center; padding: 20px;">
+    <div class="glass-card" style="width:100%; max-width:520px; background: rgba(255,255,255,0.97); padding:32px; position:relative; border-radius:28px; box-shadow:0 40px 100px rgba(0,0,0,0.18);">
+      <button id="close-delivery-date" style="position:absolute; top:16px; right:16px; background:rgba(0,0,0,0.05); border:none; width:38px; height:38px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
+      <h2 style="font-family:'Bebas Neue', sans-serif; font-size:34px; letter-spacing:1px; margin:0 0 14px; color:#1f150f;">Set Delivery Date & Time</h2>
+      <p style="margin:0 0 14px; line-height:1.7; color:#4a4039;">Please set the delivery date and time for this order.</p>
+      <div style="margin-bottom:18px;">
+        <label style="display:block; font-size:14px; font-weight:600; margin-bottom:8px; color:#1f150f;">Delivery Date & Time</label>
+        <input type="datetime-local" id="delivery-datetime-input" style="width:100%; padding:12px; border:1px solid rgba(0,0,0,0.1); border-radius:12px; font-size:16px; background:white;">
+      </div>
+      <div style="display:flex; gap:12px;">
+        <button id="delivery-date-confirm" class="submit-btn" style="flex:1; margin-top:0;">Confirm</button>
+        <button id="delivery-date-cancel" class="action-btn btn-delete" style="flex:1; margin-right:0;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div id="user-detail-overlay" style="position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); z-index: 2300; display: none; align-items: center; justify-content: center; padding: 20px;">
     <div class="glass-card" style="width:100%; max-width:700px; max-height:90vh; overflow-y:auto; background: rgba(255,255,255,0.97); padding:36px; position:relative; border-radius:30px; box-shadow:0 40px 100px rgba(0,0,0,0.18);">
       <button id="close-user-detail" style="position:absolute; top:18px; right:18px; background:rgba(0,0,0,0.05); border:none; width:38px; height:38px; border-radius:50%; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center;">&times;</button>
@@ -521,7 +580,9 @@
     let selectedMediaFiles = [];
     let existingMedia = [];
     let usersLookup = {};
+    let orderBlockSettings = { normal: false, custom: false };
     let pendingPhoneVerification = null;
+    let pendingDeliveryDate = null;
     let currentUserDetailUid = null;
 
     // Global UI references
@@ -534,11 +595,13 @@
         return;
       }
       loadUsers();
+      loadOrderBlockSettings();
       loadNormalOrders();
       loadOrders();
       loadProducts();
       initTabs();
       initProductModal();
+      initOrderBlockButtons();
     });
 
     function initTabs() {
@@ -573,6 +636,53 @@
         console.error(e);
         showToast('Error loading users.', 'error');
       }
+    }
+
+    async function loadOrderBlockSettings() {
+      try {
+        const snapshot = await get(ref(rtdb, 'ordersBlocked'));
+        orderBlockSettings = snapshot.exists() ? snapshot.val() || {} : { normal: false, custom: false };
+        updateOrderBlockUI();
+      } catch (e) {
+        console.error(e);
+        showToast('Error loading order block settings.', 'error');
+      }
+    }
+
+    function updateOrderBlockUI() {
+      document.getElementById('normal-orders-status').innerText = orderBlockSettings.normal === true
+        ? 'Normal orders are currently stopped.'
+        : 'Normal orders are currently allowed.';
+      document.getElementById('normal-orders-toggle-btn').innerText = orderBlockSettings.normal === true
+        ? 'Resume Normal Orders'
+        : 'Stop Normal Orders';
+
+      document.getElementById('custom-orders-status').innerText = orderBlockSettings.custom === true
+        ? 'Custom orders are currently stopped.'
+        : 'Custom orders are currently allowed.';
+      document.getElementById('custom-orders-toggle-btn').innerText = orderBlockSettings.custom === true
+        ? 'Resume Custom Orders'
+        : 'Stop Custom Orders';
+    }
+
+    function initOrderBlockButtons() {
+      document.getElementById('normal-orders-toggle-btn')?.addEventListener('click', async () => {
+        const nextValue = !orderBlockSettings.normal;
+        const toast = showToast(nextValue ? 'Stopping normal orders...' : 'Resuming normal orders...', 'loading');
+        await update(ref(rtdb, 'ordersBlocked'), { normal: nextValue });
+        orderBlockSettings.normal = nextValue;
+        updateOrderBlockUI();
+        updateToast(toast, nextValue ? 'Normal orders stopped.' : 'Normal orders resumed.', 'success');
+      });
+
+      document.getElementById('custom-orders-toggle-btn')?.addEventListener('click', async () => {
+        const nextValue = !orderBlockSettings.custom;
+        const toast = showToast(nextValue ? 'Stopping custom orders...' : 'Resuming custom orders...', 'loading');
+        await update(ref(rtdb, 'ordersBlocked'), { custom: nextValue });
+        orderBlockSettings.custom = nextValue;
+        updateOrderBlockUI();
+        updateToast(toast, nextValue ? 'Custom orders stopped.' : 'Custom orders resumed.', 'success');
+      });
     }
 
     function getUserMeta(userId, order = {}) {
@@ -678,6 +788,11 @@
       pendingPhoneVerification = { orderType, orderId, userId, phone, newStatus, currentStatus, selectElement };
     }
 
+    function requestDeliveryDate({ orderType, orderId, order, newStatus, selectElement }) {
+      document.getElementById('delivery-date-overlay').style.display = 'flex';
+      pendingDeliveryDate = { orderType, orderId, order, newStatus, selectElement };
+    }
+
     async function applyOrderStatusChange(orderType, orderId, newStatus) {
       const path = orderType === 'standard' ? `standardOrders/${orderId}` : `customOrders/${orderId}`;
       const toast = showToast('Updating status...', 'loading');
@@ -698,6 +813,19 @@
           phone: userMeta.phone,
           newStatus,
           currentStatus,
+          selectElement
+        });
+        return;
+      }
+
+      const shouldSetDeliveryDate = currentStatus === 'Pending' && newStatus !== 'Pending';
+
+      if (shouldSetDeliveryDate) {
+        requestDeliveryDate({
+          orderType,
+          orderId,
+          order,
+          newStatus,
           selectElement
         });
         return;
@@ -1172,6 +1300,10 @@
       const closePhoneVerify = document.getElementById('close-phone-verify');
       const cancelPhoneVerify = document.getElementById('phone-verify-cancel');
       const confirmPhoneVerify = document.getElementById('phone-verify-confirm');
+      const deliveryDateOverlay = document.getElementById('delivery-date-overlay');
+      const closeDeliveryDate = document.getElementById('close-delivery-date');
+      const cancelDeliveryDate = document.getElementById('delivery-date-cancel');
+      const confirmDeliveryDate = document.getElementById('delivery-date-confirm');
       const userDetailOverlay = document.getElementById('user-detail-overlay');
       const closeUserDetail = document.getElementById('close-user-detail');
       const modal = document.getElementById('product-modal-overlay');
@@ -1204,7 +1336,7 @@
         existingMedia = [];
         
         modal.style.display = 'flex';
-        updateFastenerOptions();
+        updateFastenerOptions?.();
       });
       closeBtn?.addEventListener('click', () => modal.style.display = 'none');
       closeOrderDetail?.addEventListener('click', () => orderDetailOverlay.style.display = 'none');
@@ -1262,6 +1394,59 @@
             pendingPhoneVerification.selectElement.value = pendingPhoneVerification.currentStatus;
           }
           closePhoneVerifyModal();
+        }
+      });
+
+      closeDeliveryDate?.addEventListener('click', () => {
+        if (pendingDeliveryDate?.selectElement) {
+          pendingDeliveryDate.selectElement.value = pendingDeliveryDate.order.status || 'Pending';
+        }
+        deliveryDateOverlay.style.display = 'none';
+        pendingDeliveryDate = null;
+      });
+      cancelDeliveryDate?.addEventListener('click', () => {
+        if (pendingDeliveryDate?.selectElement) {
+          pendingDeliveryDate.selectElement.value = pendingDeliveryDate.order.status || 'Pending';
+        }
+        deliveryDateOverlay.style.display = 'none';
+        pendingDeliveryDate = null;
+      });
+      deliveryDateOverlay?.addEventListener('click', (e) => {
+        if (e.target === deliveryDateOverlay) {
+          if (pendingDeliveryDate?.selectElement) {
+            pendingDeliveryDate.selectElement.value = pendingDeliveryDate.order.status || 'Pending';
+          }
+          deliveryDateOverlay.style.display = 'none';
+          pendingDeliveryDate = null;
+        }
+      });
+      confirmDeliveryDate?.addEventListener('click', async () => {
+        if (!pendingDeliveryDate) return;
+        const deliveryDateTime = document.getElementById('delivery-datetime-input').value;
+        if (!deliveryDateTime) {
+          showToast('Please select a delivery date and time.', 'error');
+          return;
+        }
+        const { orderType, orderId, order, newStatus, selectElement } = pendingDeliveryDate;
+        try {
+          const path = orderType === 'standard' ? `standardOrders/${orderId}` : `customOrders/${orderId}`;
+          const toast = showToast('Updating status and delivery date...', 'loading');
+          await update(ref(rtdb, path), {
+            status: newStatus,
+            deliveryDateTime: deliveryDateTime
+          });
+          updateToast(toast, 'Status and delivery date updated!', 'success');
+          selectElement.value = newStatus;
+          deliveryDateOverlay.style.display = 'none';
+          pendingDeliveryDate = null;
+        } catch (error) {
+          console.error(error);
+          showToast('Could not update status and delivery date.', 'error');
+          if (pendingDeliveryDate?.selectElement) {
+            pendingDeliveryDate.selectElement.value = pendingDeliveryDate.order.status || 'Pending';
+          }
+          deliveryDateOverlay.style.display = 'none';
+          pendingDeliveryDate = null;
         }
       });
 
@@ -1429,7 +1614,7 @@
           productForm.name.value = prod.name;
           productForm.fabric.value = prod.fabric;
           productForm.qtyType.value = prod.qtyType;
-          productForm.quantity.value = prod.quantity === 'unlimited' ? '' : prod.quantity;
+          productForm.quantity.value = prod.qtyType === 'fixed' ? prod.quantity : '';
           document.getElementById('qty-value').style.display = prod.qtyType === 'fixed' ? 'block' : 'none';
           productForm.price.value = prod.price;
           
@@ -1437,18 +1622,19 @@
           hasDiscount.checked = !!prod.discountPrice;
           document.getElementById('discount-group').style.display = hasDiscount.checked ? 'block' : 'none';
           productForm.discountPrice.value = prod.discountPrice || '';
-          
-          productForm.collar.value = prod.collar;
           productForm.fastenerType.value = prod.fastenerType;
+          productForm.neck.value = prod.neck;
           
-          updateFastenerOptions();
+          updateFastenerOptions?.();
           if (prod.fastenerType === 'zip') {
-            productForm.querySelector('select[name="zipOption"]').value = prod.fastenerValue;
+            const zipOption = productForm.querySelector('select[name="zipOption"]');
+            if (zipOption) zipOption.value = prod.fastenerValue;
           } else if (prod.fastenerType === 'buttons') {
-            productForm.querySelector('select[name="buttonsOption"]').value = prod.fastenerValue;
+            const buttonsOption = productForm.querySelector('select[name="buttonsOption"]');
+            if (buttonsOption) buttonsOption.value = prod.fastenerValue;
           }
 
-          form.querySelectorAll('input[name="sizes"]').forEach(cb => {
+          productForm.querySelectorAll('input[name="sizes"]').forEach(cb => {
             cb.checked = prod.sizes?.includes(cb.value);
           });
 
